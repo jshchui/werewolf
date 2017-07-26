@@ -27,6 +27,20 @@ export default function(db) {
         console.log('# of online users =' + snap.numChildren());
         return cb(snap.numChildren());
       })
+    },
+
+    // displays current users
+    displayCurrentUser(allUsers) {
+      var users;
+      db.child('presence').on('value', (snapshot) => {
+        const currentUsers = snapshot.val()
+        if(currentUsers != null) {
+          users = currentUsers;
+          return allUsers(users);
+        }
+      })
     }
+
+
   }
 }

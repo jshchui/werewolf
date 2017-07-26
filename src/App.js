@@ -49,26 +49,19 @@ class App extends Component {
       });
     });
 
-    //I think this displays current users
-    firebase.database().ref().child('presence').on('value', (snapshot) => {
-        const currentUsers = snapshot.val()
-        console.log(currentUsers)
-
-        // const alias = prompt('What is your alias');
-        // console.log(currentUsers)
-        if(currentUsers != null) {
-          this.setState({
-            players: currentUsers
-        })
-      }
-    })
+    this.props.firebaseService.displayCurrentUser((currentUsers) => {
+      console.log(currentUsers);
+      this.setState({
+        players: currentUsers
+      })
+    });
   }
+
+
 
   checkPlayerStatus() {
 
   }
-
-
 
   doSomething(playerID) {
     // this.state.players
