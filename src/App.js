@@ -20,8 +20,26 @@ class App extends Component {
       alias: '',
       gameStatus: 'unready',
       thisplayerID: null,
-      thisplayerRole: ''
+      thisplayerRole: '',
+      time: {},
+      seconds: 4
     };
+
+    this.timer = 0;
+    this.startTimer = this.startTimer.bind(this);
+    this.countDown = this.countDown.bind(this);
+  }
+
+  secondsToTime(secs){
+    let divisor_for_minutes = secs % (60 * 60);
+    let minutes = Math.floor(divisor_for_minutes / 60);
+    let divisor_for_seconds = divisor_for_minutes % 60;
+    let seconds = Math.ceil(divisor_for_seconds);
+
+    let obj = {
+      "s": seconds
+    };
+    return obj;
   }
 
   componentDidMount() {
@@ -65,10 +83,32 @@ class App extends Component {
         thisplayerID: id
       })
     });
+
+    let timeLeftVar = this.secondsToTime(this.state.seconds);
+    this.setState({ time: timeLeftVar })
+  }
+
+  startTimer() {
+    if(this.timer == 0) {
+      this.timer = setInterval(this.countDown, 1000);
+    }
+  }
+
+  countDown() {
+    let seconds = this.state.seconds - 1;
+    this.setState({
+      time: this.secondsToTime(seconds),
+      seconds: seconds
+    });
+
+    if (seconds == 0) {
+      clearInterval(this.timer);
+    }
   }
 
 
   componentDidUpdate() {
+    //Once status is true from the react true data, give out role
     if(this.state.gameStatus == 'ready') {
       var Roster = ['Villager', 'Werewolf', 'Seer']
       var Role = Roster[Math.floor(Math.random()*2)];
@@ -102,12 +142,17 @@ class App extends Component {
 
 
   loopThroughPlayers = () => {
-    // this.props.firebaseService.checkReady();
     this.props.firebaseService.checkReady(this.state.thisplayerID).then(
       (gameStart) => {
       console.log(`Gamestate: ${gameStart}`);
       if(gameStart == true) {
-        firebase.database().ref().child('react').child('gameState').set(true);
+        this.startTimer();
+        //once everyone is ready, start timer and set react gameState data to true
+        //which also sets gamesState state to begin
+        setTimeout(() => {
+          firebase.database().ref().child('react').child('gameState').set(true);
+        }, this.state.seconds * 1000);
+
       }
     });
     // var name = this.state.alias;
@@ -138,16 +183,32 @@ class App extends Component {
 
   // <Role playerID={this.state.thisPlayerID} loopThroughPlayers={this.loopThroughPlayers}/>
 
+  // <button onClick={this.startTimer}>Start</button>
 
   render() {
+    // const gameStatus = firebase.database().ref().child('react').child('gameState');
+    console.log(this.state.seconds);
+    let Timer = null;
+    if(this.state.seconds <= 3) {
+      console.log('Timer True');
+      Timer = <h3> Game Starting in: {this.state.time.s} </h3>;
+    } else {
+      console.log('Timer null');
+      Timer = null;
+    }
+
     return (
       <div className="App">
         <div className="player-list">
           <PlayerList players={this.state.players} doSomething={this.doSomething} />
+          <div>
+            {Timer}
+          </div>
           <div className="ready-role">
             <h2>Your role:{this.state.thisplayerRole}</h2>
             <Role loopThroughPlayers={this.loopThroughPlayers} ready={this.ready}/>
           </div>
+
         </div>
         <div className="announcer">
           <h1>{this.state.gameStatus}</h1>
