@@ -39,8 +39,29 @@ export default function(db) {
           return allUsers(users);
         }
       })
+    },
+
+    checkReady(thisplayerID) {
+      // console.log(thisplayerID);
+
+      db.child('presence').child(thisplayerID).child('ready').set(true);
+
+      return db.child('presence').once("value")
+          .then(function(snapshot) {
+            return Object.keys(snapshot.val()).map((playerID) => {
+              return snapshot.val()[playerID].ready
+            }).indexOf(false) === -1; // if it can't find a false, -1
+
+            // snapshot.forEach(function(childSnapshot) {
+            //   var key = childSnapshot.key;
+            //   var childData = childSnapshot.val();
+            //   if (childData.ready == false) {
+            //     gameReady = false;
+            //   }
+            // });
+            // return gameReady;
+          })
+      // return Promise.resolve(true);
     }
-
-
   }
 }

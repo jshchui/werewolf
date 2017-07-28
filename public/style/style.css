@@ -1,0 +1,78 @@
+.player-list {
+  float: left;
+  background-color: lightgrey;
+  width: 30%;
+  height: 100vh;
+  position: relative;
+}
+
+ul {
+  list-style-type: none;
+  padding: 1em;
+  background-color: white;
+}
+
+.announcer {
+  float: left;
+  width: 70%;
+  height: 80px;
+  background-color: lightblue;
+}
+
+.chatRoom-container {
+  float: left;
+  width: 70%;
+  height: calc(100vh - 80px);
+  position: relative;
+  overflow: auto;
+}
+
+.chatRoom-inner-container {
+  /*position: absolute;
+  width: 100%;
+  bottom: 0;*/
+}
+
+.message-submitted {
+  padding: 0 2em;
+  word-break: break-all;
+  padding-bottom: 1em;
+}
+
+.message-form {
+  display:flex;
+  bottom: 0;
+  width: 70%;
+  position: fixed;
+}
+
+.message-input {
+  display: flex;
+  width: 80%;
+  padding: 0.5em;
+}
+
+.message-submit {
+  width: 20%;
+}
+
+.ready-role {
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+  background-color: red;
+  padding-bottom: 2em;
+}
+.single-message {
+  display: flex;
+  text-align: left;
+  border-top: solid thin lightgrey;
+}
+
+.user-name{
+  width: 100px;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}

@@ -47,7 +47,7 @@ class ChatRoom extends Component {
   }
 
   updateMessage(event) {
-    console.log('updateMessage:' + event.target.value)
+    // console.log('updateMessage:' + event.target.value)
     this.setState({
       message: event.target.value
     })
@@ -92,10 +92,9 @@ class ChatRoom extends Component {
   render() {
     const currentMessage = this.state.messages.map((message, i) => {
         return (
-          <div>
-
+          <div className="single-message">
+            <p className="user-name">{ message.player }: </p>
             <p key={message.id}>
-            <strong>{ message.player }: </strong>
             {message.text}
             </p>
           </div>
@@ -103,20 +102,19 @@ class ChatRoom extends Component {
     })
 
     return (
-      <div>
-        <ol>
+      <div className="chatRoom-inner-container">
+        <ol className="message-submitted">
           {currentMessage}
         </ol>
-        <form id='form' onSubmit={this.onFormSubmit}>
-          <input onChange={this.updateMessage} type="text" placeholder="Message" />
-          <br />
-          <button onClick={this.submitMessage}>Submit Message</button>
+        <form className="message-form" id='form' onSubmit={this.onFormSubmit}>
+          <input className="message-input" onChange={this.updateMessage} type="text" placeholder="Message" />
+          <button className="message-submit" onClick={this.submitMessage}>Submit Message</button>
         </form>
       </div>
     )
   }
 }
 
-console.log('chatroom-connected');
+// console.log('chatroom-connected');
 
 export default ChatRoom;

@@ -16,35 +16,45 @@ class Role extends Component {
   readyUp(event) {
     this.setState({
       ready: 'true'
-    })
-    
-    firebase.database().ref().child('presence').child(this.props.playerID).child('ready').set(true);
+    });
 
-    var query = firebase.database().ref('presence');
-    query.once("value")
-      .then(function(snapshot) {
-        var gameReady = true;
-        snapshot.forEach(function(childSnapshot) {
-          var key = childSnapshot.key;
-          var childData = childSnapshot.val();
-          if (childData.ready == false) {
-            gameReady = false;
-          }
-        });
-        return gameReady;
-      }).then(function(gameReady) {
-        if(gameReady == true) {
-          console.log('Game Start');
-        }
-      })
+    // THIS IS HOW YOU ADD FUNCtion VALUE TO  this.props.firebaseService.loopThroughPlayers(this.props.playerID).then((players) => {
+    //   console.log(players);
+    // });
+
+    // firebase.database().ref().child('presence').child(this.props.playerID).child('ready').set(true);
+    //
+    // var query = firebase.database().ref('presence');
+    // query.once("value")
+    //   .then(function(snapshot) {
+    //     var gameReady = true;
+    //     snapshot.forEach(function(childSnapshot) {
+    //       var key = childSnapshot.key;
+    //       var childData = childSnapshot.val();
+    //       if (childData.ready == false) {
+    //         gameReady = false;
+    //       }
+    //     });
+    //     return gameReady;
+    //   }).then(function(gameReady) {
+    //     if(gameReady == true) {
+    //       console.log('Game Start');
+    //     }
+    //   })
+
+  }
+
+  handleClick() {
+    this.props.loopThroughPlayers();
+    this.readyUp();
   }
 
 
   render() {
     return (
       <div>
-        <h3>Readyness: {this.state.ready}</h3>
-        <button onClick={this.readyUp}>Ready</button>
+        <h3>Ready?: {this.state.ready}</h3>
+        <button onClick={(e)=> this.handleClick(e)}>Ready</button>
       </div>
     )
   }

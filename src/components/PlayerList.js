@@ -5,7 +5,7 @@ import '../index.js';
 
 class PlayerList extends Component {
 
-  renderPlayerList(players) {
+  renderPlayerList = (players) => {
     // console.log(players)
     // debugger
     return Object.keys(players).map((playerID) => {
