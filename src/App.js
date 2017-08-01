@@ -14,15 +14,15 @@ class App extends Component {
 
 
     this.state = {
-      speed: 40,
       announcement: ``,
       players: {},
       alias: '',
       gameStatus: 'unready',
       thisplayerID: null,
-      thisplayerRole: '',
+      thisplayerRole: null,
       time: {},
-      seconds: 4
+      seconds: 4,
+      currentTime: 10
     };
 
     this.timer = 0;
@@ -68,12 +68,25 @@ class App extends Component {
         announcement: `Players currently not ready`
       });
     });
+
+    //if gameStateRef on FIREBASE is true, set gameStatus state to ready
     gameStateRef.on('value', snap => {
       if(snap.val() == true) {
         this.setState({
           gameStatus: 'ready'
         })
-      }
+      };
+
+      //select from roster and gives the player the role from roster
+      if(snap.val() == 'begin') {
+        var Roster = ['Villager', 'Werewolf', 'Seer'];
+        var Role = Roster[Math.floor(Math.random()*3)];
+        this.setState({
+          thisplayerRole: Role
+        });
+        this.props.firebaseService.setPlayerRole(this.state.thisplayerID, Role);
+      };
+
     })
 
 
@@ -92,16 +105,55 @@ class App extends Component {
     if(this.timer == 0) {
       this.timer = setInterval(this.countDown, 1000);
     }
+    firebase.database().ref().child('react').child('currentTime').set(this.state.currentTime);
   }
 
+
   countDown() {
-    let seconds = this.state.seconds - 1;
-    this.setState({
-      time: this.secondsToTime(seconds),
-      seconds: seconds
+    // let currentTime = firebase.database().ref().child('react')
+    // .child('currentTime').once('value').then((snap) => {
+    //   console.log(snap.val());
+    //   return snap.val();
+    // });
+
+    // let timeRef = firebase.database().ref().child('react').child('currentTime');
+    // let currentTime = timeRef.on('value', function(snapshot) {
+    //   // console.log(snapshot.val() - 1);
+    //   const time = snapshot.val();
+    //   let timeMinus1 = snapshot.val() - 1;
+    //   return time;
+    // });
+
+    let timeRef = firebase.database().ref().child('react').child('currentTime');
+    let currentTime;
+    let databaseTime = timeRef.on('value', function(snapshot) {
+      currentTime = snapshot.val();
+      return null;
     });
 
-    if (seconds == 0) {
+    let minusOne = currentTime - 1;
+
+
+    console.log(minusOne);
+    if(minusOne >= 0) {
+
+      timeRef.set(minusOne);
+    }
+
+    this.setState({
+      time: this.secondsToTime(currentTime),
+      // seconds: seconds
+      currentTime: minusOne
+    });
+
+
+
+    // let currentTimeMinusOne = currentTime - 1;
+    // currentTime.set(currentTime);
+    // console.log(currentTimeMinusOne);
+    // let seconds = this.state.seconds - 1;
+
+    if (currentTime == 0) {
       clearInterval(this.timer);
     }
   }
@@ -109,15 +161,21 @@ class App extends Component {
 
   componentDidUpdate() {
     //Once status is true from the react true data, give out role
-    if(this.state.gameStatus == 'ready') {
-      var Roster = ['Villager', 'Werewolf', 'Seer']
-      var Role = Roster[Math.floor(Math.random()*2)];
-      this.setState({
-        thisplayerRole: Role,
-        gameStatus: 'begin'
-      });
-      console.log('game status ready, giving out roles');
-    }
+    // if(this.state.gameStatus == 'ready') {
+    //   var Roster = ['Villager', 'Werewolf', 'Seer']
+    //   var Role = Roster[Math.floor(Math.random()*3)];
+    //
+    //   // This is not updateing the state, its not working!!!
+    //   this.setState({
+    //     thisplayerRole: Role,
+    //     gameStatus: 'begin'
+    //   });
+    //   console.log(Role);
+    //   console.log(this.state.thisplayerRole);
+    //   // TODO: WHY DOESN"T this.state.thisplayerRole work here
+    //   console.log(this.state.gameStatus);
+    //   firebase.database().ref().child('presence').child(this.state.thisplayerID).child('role').set(this.state.thisplayerRole);
+    // }
   }
 
 
@@ -144,14 +202,15 @@ class App extends Component {
   loopThroughPlayers = () => {
     this.props.firebaseService.checkReady(this.state.thisplayerID).then(
       (gameStart) => {
-      console.log(`Gamestate: ${gameStart}`);
+      // console.log(`Gamestate: ${gameStart}`);
       if(gameStart == true) {
         this.startTimer();
         //once everyone is ready, start timer and set react gameState data to true
         //which also sets gamesState state to begin
         setTimeout(() => {
-          firebase.database().ref().child('react').child('gameState').set(true);
-        }, this.state.seconds * 1000);
+          //refactor this later to firebaseService
+          firebase.database().ref().child('react').child('gameState').set('begin');
+        }, this.state.currentTime * 1000 + 1000);
 
       }
     });
@@ -187,15 +246,14 @@ class App extends Component {
 
   render() {
     // const gameStatus = firebase.database().ref().child('react').child('gameState');
-    console.log(this.state.seconds);
-    let Timer = null;
-    if(this.state.seconds <= 3) {
-      console.log('Timer True');
-      Timer = <h3> Game Starting in: {this.state.time.s} </h3>;
-    } else {
-      console.log('Timer null');
-      Timer = null;
-    }
+    // console.log(this.state.thisplayerRole);
+    let Timer = null; //Timer is for rendering out the timer below
+    // if(this.state.seconds <= 3) {
+      // Timer = <h3> Game Starting in: {this.state.time.s} </h3>;
+      Timer = <h3> Game Starting in: {this.state.currentTime} </h3>;
+    // } else {
+      // Timer = null;
+    // }
 
     return (
       <div className="App">
@@ -211,7 +269,8 @@ class App extends Component {
 
         </div>
         <div className="announcer">
-          <h1>{this.state.gameStatus}</h1>
+          <h1>{this.state.announcement}</h1>
+          <h2>{this.state.gameStatus}</h2>
         </div>
         <div className="chatRoom-container">
           <ChatRoom player={this.state.alias} />

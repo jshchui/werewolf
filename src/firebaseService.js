@@ -21,14 +21,12 @@ export default function(db) {
         })
       })
     },
-
     countOnlineUser(cb) {
       db.child('presence').on('value', function(snap) {
         console.log('# of online users =' + snap.numChildren());
         return cb(snap.numChildren());
       })
     },
-
     // displays current users
     displayCurrentUser(allUsers) {
       var users;
@@ -41,9 +39,8 @@ export default function(db) {
       })
     },
 
+    //checks if all users are ready
     checkReady(thisplayerID) {
-      // console.log(thisplayerID);
-
       db.child('presence').child(thisplayerID).child('ready').set(true);
 
       return db.child('presence').once("value")
@@ -62,6 +59,10 @@ export default function(db) {
             // return gameReady;
           })
       // return Promise.resolve(true);
+    },
+    // sets the player role
+    setPlayerRole(thisplayerID, Role) {
+      db.child('presence').child(thisplayerID).child('role').set(Role);
     }
   }
 }
