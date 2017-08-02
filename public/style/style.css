@@ -1,3 +1,15 @@
+.App {
+  overflow: auto;
+}
+
+.lightblue {
+  background-color: lightblue;
+}
+
+.lightyellow {
+  background-color: lightyellow;
+}
+
 .player-list {
   float: left;
   background-color: lightgrey;

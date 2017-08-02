@@ -43,17 +43,15 @@ class App extends Component {
   // }
 
   componentDidMount() {
-
     const alias = prompt('What is your alias');
     const id = Math.floor(Date.now()).toString();
 
     const rootRef = firebase.database().ref();
     const presenceRef = rootRef.child('presence');
     const gameStateRef = rootRef.child('react').child('gameState');
-
+    const reactdbStateRef = rootRef.child('react');
     // checks the cycle
     const cycleStateRef = rootRef.child('react').child('cycle');
-
     gameStateRef.set(false);
 
     //this.props from index.js
@@ -71,10 +69,50 @@ class App extends Component {
     });
 
     cycleStateRef.on('value', snap => {
-      this.setState({
+      if(snap.val() == 'night') {
+        this.setState({
+          gameStatus: 'night'
+        });
+      };
 
-      })
+      if(snap.val() =='day') {
+        this.setState({
+          gameStatus: 'day'
+        });
+      }
     })
+
+
+    reactdbStateRef.on('value', (snap) => {
+      const gameStatus = snap.val();
+
+      console.log('gamestatus', gameStatus);
+    })
+
+
+  //   .child('react').on('value', function(snap) => {
+  // const gameStatus = snap.val()
+
+//   if (gameStatus.cycle !== this.state.cycle) {
+//     const int = setInterval(() => {
+//       let count = 11;
+//       if (count > 0) {
+//         this.setState({
+//           countDown: count -= 1
+//         });
+//       } else {
+//         return clearInterval(int);
+//       }
+//     }, 1000)
+//   }
+//
+//   this.setState({
+//     gameStatus
+//   });
+// })
+//
+//
+// {this.state.cycle}
 
 
     //if gameStateRef on FIREBASE is true, set gameStatus state to ready
@@ -161,7 +199,9 @@ class App extends Component {
 
     // let timeLeftVar = this.secondsToTime(this.state.seconds);
     // this.setState({ time: timeLeftVar })
-  }
+
+  }// end of component did mount
+
   //
   // startTimer() {
   //
@@ -249,9 +289,6 @@ class App extends Component {
     // console.log(playerID);
   }
 
-  ready() {
-    return ;
-  }
 
 
 
@@ -315,11 +352,17 @@ class App extends Component {
       // Timer = null;
     // }
 
+    // if( {this.state.gameStatus} == 'day') {
+    //   let color = 'lightyellow';
+    // } else {
+    //   let color = 'lightblue';
+    // }
+
     //  loopThroughPlayers={this.loopThroughPlayers}
 
 
     return (
-      <div className="App">
+      <div className="App {this.state.gameStatus}">
         <div className="player-list">
           <PlayerList players={this.state.players} doSomething={this.doSomething} />
           <div>

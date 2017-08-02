@@ -4,24 +4,26 @@ admin.initializeApp(functions.config().firebase);
 
 exports.startCycle = functions.database.ref('game-settings').onUpdate((event) => {
   let cycleLoop;
+  // if game setting was returned TRUE, THEN RUN BELOW
   if (event.data.val().started) {
     // set up your game ONCE here
     const cycle = {
       cylceStart: Date.now(),
-      cycleEnd: Date.now() + (10 * 1000),
+      cycleEnd: Date.now() + (3 * 1000),
       cycle: 'night',
 
     };
 
     // cycles through different states
     const cycleMap = {
-      'night' : 'deaths',
-      'deaths' : 'day',
+      'night' : 'day',
+      // 'deaths' : 'day',
       'day' : 'night'
     }
     // collect vote during night,
     // on death , count votes, set dead on presence, clear votes.
 
+    //update cycle every 3 seconds
     return event.data.ref.parent.child('presence').database.ref('/').child('react').update(cycle).then(() => {
       cycleLoop = setInterval(() => {
         return event.data.ref.parent.child('game-settings').once('value').then((snap) => {
@@ -31,7 +33,7 @@ exports.startCycle = functions.database.ref('game-settings').onUpdate((event) =>
               // UPDATE YOUR GAME EVERY CYCLE HERE
               const newCycle = {
                 cylceStart: Date.now(),
-                cycleEnd: Date.now() + (10 * 1000),
+                cycleEnd: Date.now() + (3 * 1000),
                 cycle: cycleMap[currentCycle]
                 // isBlack ? {isHidden ? : 'foo' : 'bar '} : 'baz';
               };
@@ -41,7 +43,7 @@ exports.startCycle = functions.database.ref('game-settings').onUpdate((event) =>
             return clearInterval(cycleLoop);
           }
         });
-      }, 10 * 1000);
+      }, 3 * 1000);
     });
 
     function updateCycle(newCycle) {
