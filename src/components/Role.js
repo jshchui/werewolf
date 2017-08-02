@@ -45,8 +45,9 @@ class Role extends Component {
   }
 
   handleClick() {
-    this.props.loopThroughPlayers();
+    // this.props.loopThroughPlayers();
     this.readyUp();
+    this.props.onReadyUp();
   }
 
 
