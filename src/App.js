@@ -19,7 +19,8 @@ class App extends Component {
       alias: '',
       gameStatus: 'unready',
       thisplayerID: null,
-      thisplayerRole: null
+      thisplayerRole: null,
+      countDown: null
       // time: {},
       // seconds: 4,
       // currentTime: 8
@@ -69,50 +70,78 @@ class App extends Component {
     });
 
     cycleStateRef.on('value', snap => {
-      if(snap.val() == 'night') {
-        this.setState({
-          gameStatus: 'night'
-        });
-      };
-
-      if(snap.val() =='day') {
-        this.setState({
-          gameStatus: 'day'
-        });
-      }
+      this.setState({
+        gameStatus: snap.val() == 'night' ? 'night' : 'day'
+      })
+      // if(snap.val() == 'night') {
+      //   this.setState({
+      //     gameStatus: 'night'
+      //   });
+      // };
+      //
+      // if(snap.val() =='day') {
+      //   this.setState({
+      //     gameStatus: 'day'
+      //   });
+      // }
     })
 
+    // reactdbStateRef.on('value', (snap) => {
+    //   const gameStatus = snap.val();
+    //
+    //   let time = gameStatus.cycleEnd - gameStatus.cycleStart;
+    //   console.log(gameStatus.cycleEnd);
+    //   console.log(gameStatus.cycleStart);
+    // })
 
-    reactdbStateRef.on('value', (snap) => {
-      const gameStatus = snap.val();
 
-      console.log('gamestatus', gameStatus);
-    })
+    // reactdbStateRef.on('value', (snap) => {
+    //   const gameStatus = snap.val();
+    //
+    //   if (gameStatus.cycle !== this.state.cycle) {
+    //     const int = setInterval(() => {
+    //       let count = 4;
+    //       if (count > 0) {
+    //         count = count - 1;
+    //         console.log(count);
+    //         this.setState({
+    //           countDown: count
+    //         });
+    //       } else {
+    //         return clearInterval(int);
+    //       }
+    //     }, 1000)
+    //   }
+    //
+    //   // this.setState({
+    //   //   gameStatus: gameStatus
+    //   // })
+    // });
 
 
-  //   .child('react').on('value', function(snap) => {
-  // const gameStatus = snap.val()
-
-//   if (gameStatus.cycle !== this.state.cycle) {
-//     const int = setInterval(() => {
-//       let count = 11;
-//       if (count > 0) {
-//         this.setState({
-//           countDown: count -= 1
-//         });
-//       } else {
-//         return clearInterval(int);
-//       }
-//     }, 1000)
-//   }
-//
-//   this.setState({
-//     gameStatus
-//   });
-// })
-//
-//
-// {this.state.cycle}
+  // .child('react').on('value', function(snap) => {
+  //   const gameStatus = snap.val()
+  //
+  //   if (gameStatus.cycle !== this.state.cycle) {
+  //     const int = setInterval(() => {
+  //       let count = 11;
+  //       if (count > 0) {
+  //         this.setState({
+  //           countDown: count -= 1
+  //         });
+  //       } else {
+  //         return clearInterval(int);
+  //       }
+  //     }, 1000)
+  //   }
+  //
+  //   this.setState({
+  //     gameStatus
+  //   });
+  // })
+  //
+  //
+  // {this.state.cycle}
 
 
     //if gameStateRef on FIREBASE is true, set gameStatus state to ready
@@ -363,6 +392,7 @@ class App extends Component {
 
     return (
       <div className="App {this.state.gameStatus}">
+        {this.state.countDown}
         <div className="player-list">
           <PlayerList players={this.state.players} doSomething={this.doSomething} />
           <div>

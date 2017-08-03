@@ -8,10 +8,9 @@ exports.startCycle = functions.database.ref('game-settings').onUpdate((event) =>
   if (event.data.val().started) {
     // set up your game ONCE here
     const cycle = {
-      cylceStart: Date.now(),
+      cycleStart: Date.now(),
       cycleEnd: Date.now() + (3 * 1000),
-      cycle: 'night',
-
+      cycle: 'night'
     };
 
     // cycles through different states
@@ -22,20 +21,19 @@ exports.startCycle = functions.database.ref('game-settings').onUpdate((event) =>
     }
     // collect vote during night,
     // on death , count votes, set dead on presence, clear votes.
-
-    //update cycle every 3 seconds
+    // update cycle every 3 seconds
     return event.data.ref.parent.child('presence').database.ref('/').child('react').update(cycle).then(() => {
       cycleLoop = setInterval(() => {
+        console.log(new Date());
         return event.data.ref.parent.child('game-settings').once('value').then((snap) => {
           if (snap.val().started) {
             event.data.ref.parent.child('presence').database.ref('/').child('react').once('value').then((newSnap) => {
               const currentCycle = newSnap.val().cycle;
               // UPDATE YOUR GAME EVERY CYCLE HERE
               const newCycle = {
-                cylceStart: Date.now(),
+                cycleStart: Date.now(),
                 cycleEnd: Date.now() + (3 * 1000),
                 cycle: cycleMap[currentCycle]
-                // isBlack ? {isHidden ? : 'foo' : 'bar '} : 'baz';
               };
               updateCycle(newCycle);
             });
@@ -44,11 +42,40 @@ exports.startCycle = functions.database.ref('game-settings').onUpdate((event) =>
           }
         });
       }, 3 * 1000);
-    });
 
-    function updateCycle(newCycle) {
-      return event.data.ref.parent.child('presence').database.ref('/').child('react').update(newCycle);
-    }
+      function updateCycle(newCycle) {
+        return event.data.ref.parent.child('presence').database.ref('/').child('react').update(newCycle);
+      }
+
+      // cycle: 'night' ? 'day' : 'night'
+      // isBlack ? {isHidden ? : 'foo' : 'bar '} : 'baz';
+
+      // var i = 0, times = 10;
+      // function f() {
+      //   console.log(Date.now())
+      //     event.data.ref.parent.child('game-settings').once('value').then((snap) => {
+      //       if (snap.val().started) {
+      //         event.data.ref.parent.child('presence').database.ref('/').child('react').once('value').then((newSnap) => {
+      //           const currentCycle = newSnap.val().cycle;
+      //           const newCycle = {
+      //             cylceStart: Date.now(),
+      //             cycleEnd: Date.now() + (3 * 1000),
+      //             cycle: 'night' ? 'day' : 'night'
+      //           };
+      //           updateCycle(newCycle);
+      //         });
+      //       }
+      //     });
+      //
+      //
+      //   i++ ;
+      //   if(i < times) {
+      //     setTimeout( f, 3000);
+      //   }
+      // }
+      //
+      // f();
+    });
   }
 });
 
