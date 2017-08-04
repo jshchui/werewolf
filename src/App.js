@@ -21,7 +21,6 @@ class App extends Component {
       thisplayerID: null,
       thisplayerRole: null,
       countDown: null
-
     };
   }
 
@@ -34,8 +33,9 @@ class App extends Component {
     const gameStateRef = rootRef.child('react').child('gameState');
     const reactdbStateRef = rootRef.child('react');
     // checks the cycle
-    const gameSettingsRef = rootRef.child('game-settings')
+    const gameSettingsRef = rootRef.child('game-settings');
     gameStateRef.set(false);
+    gameSettingsRef.child('currentCounter').set('null');
 
     //this.props from index.js
     this.props.firebaseService.setPlayerAlias(id, alias);
