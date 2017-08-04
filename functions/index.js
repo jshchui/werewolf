@@ -121,8 +121,7 @@ exports.gameStateListener = functions.database.ref('game-settings').onUpdate((ev
       gameStateNight(gameSettingsFirebaseObject)
       break;
     case "day":
-      console.log('it is daytime');
-      // gameStateNight(gameSettingsFirebaseObject)
+      gameStateDay(gameSettingsFirebaseObject)
       break;
   }
 })
@@ -145,6 +144,28 @@ const gameStateNight = (gameSettingsFirebaseObject) => {
     }
   }, 1000)
 }
+
+const gameStateDay = (gameSettingsFirebaseObject) => {
+  let currentCountdown = 10
+
+  const int = setInterval(() => {
+    if(currentCountdown > 0) {
+      currentCountdown -= 1;
+      gameSettingsFirebaseObject.set({
+        currentCounter: currentCountdown
+      })
+    } else {
+      gameSettingsFirebaseObject.set({
+        gameState: "night",
+        currentCounter: null
+      })
+      return clearInterval(int)
+    }
+  }, 1000)
+}
+
+
+
 
 
 const gameStateAllReady = (gameSettingsFirebaseObject) => {

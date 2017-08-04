@@ -15,7 +15,8 @@ export default function(db) {
             user.onDisconnect().remove();
             user.update({
               online: true,
-              ready: false
+              ready: false,
+              votes: 0
             });
           }
         })
@@ -42,27 +43,14 @@ export default function(db) {
     //checks if all users are ready
     setReady(thisplayerID) {
       return db.child('presence').child(thisplayerID).child('ready').set(true);
-
-      // return db.child('presence').once("value")
-      //     .then(function(snapshot) {
-      //       return Object.keys(snapshot.val()).map((playerID) => {
-      //         return snapshot.val()[playerID].ready
-      //       }).indexOf(false) === -1; // if it can't find a false, -1
-      //
-      //       // snapshot.forEach(function(childSnapshot) {
-      //       //   var key = childSnapshot.key;
-      //       //   var childData = childSnapshot.val();
-      //       //   if (childData.ready == false) {
-      //       //     gameReady = false;
-      //       //   }
-      //       // });
-      //       // return gameReady;
-      //     })
-      // return Promise.resolve(true);
     },
     // sets the player role
     setPlayerRole(thisplayerID, Role) {
       db.child('presence').child(thisplayerID).child('role').set(Role);
+    },
+
+    votingPlayer(thisplayerID) {
+      db.child('presence').child(thisplayerID).child('votes').set(1);
     }
   }
 }
