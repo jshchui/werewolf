@@ -1,7 +1,7 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp(functions.config().firebase);
-
+let lastGameState;
 // exports.startCycle = functions.database.ref('game-settings').onUpdate((event) => {
 //   let cycleLoop;
 //   // if game setting was returned TRUE, THEN RUN BELOW
@@ -113,16 +113,19 @@ exports.gameStateListener = functions.database.ref('game-settings').onUpdate((ev
   const gameSettings = event.data.val()
   const gameSettingsFirebaseObject = event.data.ref.parent.child('game-settings')
 
-  switch(gameSettings.gameState) {
-    case "all-ready":
+  if((lastGameState != gameSettings.gameState) || gameSettings.gameState == "all-ready") {
+    switch(gameSettings.gameState) {
+      case "all-ready":
       gameStateAllReady(gameSettingsFirebaseObject)
       break;
-    case "night":
+      case "night":
       gameStateNight(gameSettingsFirebaseObject)
       break;
-    case "day":
+      case "day":
       gameStateDay(gameSettingsFirebaseObject)
       break;
+    }
+    lastGameState = gameSettings.gameState
   }
 })
 
@@ -132,9 +135,10 @@ const gameStateNight = (gameSettingsFirebaseObject) => {
   const int = setInterval(() => {
     if(currentCountdown > 0) {
       currentCountdown -= 1;
-      gameSettingsFirebaseObject.set({
-        currentCounter: currentCountdown
-      })
+      gameSettingsFirebaseObject.child('currentCounter').set(currentCountdown)
+      // gameSettingsFirebaseObject.set({
+      //   currentCounter: currentCountdown
+      // })
     } else {
       gameSettingsFirebaseObject.set({
         gameState: "day",
@@ -151,9 +155,11 @@ const gameStateDay = (gameSettingsFirebaseObject) => {
   const int = setInterval(() => {
     if(currentCountdown > 0) {
       currentCountdown -= 1;
-      gameSettingsFirebaseObject.set({
-        currentCounter: currentCountdown
-      })
+      gameSettingsFirebaseObject.child('currentCounter').set(currentCountdown)
+
+      // gameSettingsFirebaseObject.set({
+      //   currentCounter: currentCountdown
+      // })
     } else {
       gameSettingsFirebaseObject.set({
         gameState: "night",

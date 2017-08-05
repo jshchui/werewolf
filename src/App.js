@@ -77,21 +77,29 @@ class App extends Component {
     return this.props.firebaseService.setReady(this.state.thisplayerID);
   }
 
-  getPlayerVotedId = (playerID, event) => {
-    console.log(playerID);
-    return firebase.database().ref().child('presence').child(playerID).child('votes').set(2);
+  //this is responsible for voting players for DEATH
+  setVote = (playerID, event) => {
+    firebase.database().ref().child('presence').child(playerID).child('votes')
+    .once('value', snap => {
+      let selectedPlayerCurrentVotes = snap.val();
+      console.log(selectedPlayerCurrentVotes + 1);
+      return firebase.database().ref().child('presence').child(playerID).child('votes').set(selectedPlayerCurrentVotes + 1);
+    })
   }
 
   renderVotingPlayers = (players) => {
     return Object.keys(players).map((playerID) => {
-      return (
-        <div>
-          <p>{playerID}</p>
-          <p>{this.state.players[playerID].alias}</p>
-          <button onClick={this.getPlayerVotedId.bind(null, playerID)} >Vote</button>
-
-        </div>
-      )
+      if(this.state.players[playerID].isAlive == true) {
+        return (
+          <div>
+            <p>hihi{playerID}</p>
+            <p>{this.state.players[playerID].alias}</p>
+            <button onClick={this.setVote.bind(null, playerID)} >Vote</button>
+          </div>
+        )
+      } else {
+        return null;
+      }
     })
   }
 
@@ -99,10 +107,11 @@ class App extends Component {
     let mostVotedPlayer;
     let mostVotes = 0;
     Object.keys(this.state.players).map((playerID) => {
-      if(this.state.players[playerID].votes  > mostVotes) {
+      if(this.state.players[playerID].votes > mostVotes) {
         mostVotes = this.state.players[playerID].votes
         mostVotedPlayer = playerID
         console.log('mostVotedPLayerID:',mostVotedPlayer)
+        firebase.database().ref().child('presence').child(mostVotedPlayer).child('isAlive').set(false);
       }
     })
   }
@@ -115,14 +124,16 @@ class App extends Component {
     return (
       <div className="App {this.state.gameStatus}">
         <div className="player-list">
-          <PlayerList players={this.state.players} getPlayerVotedId={this.votedPlayerID} />
+          <PlayerList players={this.state.players} setVote={this.votedPlayerID} />
           <div>
           <h2>{this.state.countDown}</h2>
             {Timer}
           </div>
+          <div>
+            <h2>Voting FORM</h2>
 
             {this.renderVotingPlayers(this.state.players)}
-
+          </div>
           <div className="VotingKillTest">
             <button onClick={this.voteKillTest} >Kill Test</button>
           </div>

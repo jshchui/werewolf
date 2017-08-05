@@ -16,7 +16,8 @@ export default function(db) {
             user.update({
               online: true,
               ready: false,
-              votes: 0
+              votes: 0,
+              isAlive: true
             });
           }
         })
