@@ -115,60 +115,75 @@ exports.gameStateListener = functions.database.ref('game-settings').onUpdate((ev
   const gameSettingsFirebaseObject = event.data.ref.parent.child('game-settings')
 
   if((lastGameState != gameSettings.gameState) || gameSettings.gameState == "all-ready") {
-    switch(gameSettings.gameState) {
-      case "all-ready":
-      gameStateAllReady(gameSettingsFirebaseObject)
-      break;
-      case "night":
-      gameStateNight(gameSettingsFirebaseObject)
-      break;
-      case "day":
-      gameStateDay(gameSettingsFirebaseObject)
-      break;
+    if(gameSettings.gameState != "game-ended") {
+      switch(gameSettings.gameState) {
+        case "all-ready":
+        gameStateAllReady(gameSettingsFirebaseObject)
+        break;
+        case "night":
+        gameStateNight(gameSettingsFirebaseObject)
+        break;
+        case "day":
+        gameStateDay(gameSettingsFirebaseObject)
+        break;
+      }
+      lastGameState = gameSettings.gameState
     }
-    lastGameState = gameSettings.gameState
   }
 })
 
 const gameStateNight = (gameSettingsFirebaseObject) => {
   let currentCountdown = 10
 
-  const int = setInterval(() => {
-    if(currentCountdown > 0) {
-      currentCountdown -= 1;
-      gameSettingsFirebaseObject.child('currentCounter').set(currentCountdown)
-      // gameSettingsFirebaseObject.set({
-      //   currentCounter: currentCountdown
-      // })
-    } else {
-      gameSettingsFirebaseObject.set({
-        gameState: "day",
-        currentCounter: null
-      })
-      return clearInterval(int)
-    }
-  }, 1000)
+    const int = setInterval(() => {
+      if(currentCountdown > 0) {
+        currentCountdown -= 1;
+        gameSettingsFirebaseObject.child('currentCounter').set(currentCountdown)
+        // gameSettingsFirebaseObject.set({
+        //   currentCounter: currentCountdown
+        // })
+      } else {
+        gameSettingsFirebaseObject.child("gameState").once('value', snap => {
+          currentGameState = snap.val();
+          console.log(currentGameState)
+          if (currentGameState != "game-ended") {
+            gameSettingsFirebaseObject.set({
+              gameState: "day",
+              currentCounter: null
+            })
+          }
+        })
+        return clearInterval(int)
+      }
+    }, 1000)
+
+
 }
 
 const gameStateDay = (gameSettingsFirebaseObject) => {
   let currentCountdown = 10
 
-  const int = setInterval(() => {
-    if(currentCountdown > 0) {
-      currentCountdown -= 1;
-      gameSettingsFirebaseObject.child('currentCounter').set(currentCountdown)
-
-      // gameSettingsFirebaseObject.set({
-      //   currentCounter: currentCountdown
-      // })
-    } else {
-      gameSettingsFirebaseObject.set({
-        gameState: "night",
-        currentCounter: null
-      })
-      return clearInterval(int)
-    }
-  }, 1000)
+    const int = setInterval(() => {
+      if(currentCountdown > 0) {
+        currentCountdown -= 1;
+        gameSettingsFirebaseObject.child('currentCounter').set(currentCountdown)
+        // gameSettingsFirebaseObject.set({
+        //   currentCounter: currentCountdown
+        // })
+      } else {
+        gameSettingsFirebaseObject.child('gameState').once('value', snap => {
+          currentGameState = snap.val();
+          console.log(currentGameState)
+          if (currentGameState != "game-ended") {
+            gameSettingsFirebaseObject.set({
+              gameState: "night",
+              currentCounter: null
+            })
+          }
+        })
+        return clearInterval(int)
+      }
+    }, 1000)
 }
 
 
