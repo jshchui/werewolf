@@ -86,6 +86,7 @@ exports.endGame = functions.database.ref('presence').onDelete((event) => {
     console.info('SET FALSE')
 
     return event.data.ref.parent.child('game-settings').set({
+      gameState: "game-ended",
       started: false
     });
   });

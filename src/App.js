@@ -20,7 +20,8 @@ class App extends Component {
       gameStatus: 'unready',
       thisplayerID: null,
       thisplayerRole: null,
-      countDown: null
+      countDown: null,
+      selectedOption: null
     };
   }
 
@@ -78,13 +79,26 @@ class App extends Component {
   }
 
   //this is responsible for voting players for DEATH
-  setVote = (playerID, event) => {
+  setVote = (event) => {
+    event.preventDefault();
+    let playerID = this.state.selectedOption
+
     firebase.database().ref().child('presence').child(playerID).child('votes')
     .once('value', snap => {
       let selectedPlayerCurrentVotes = snap.val();
       console.log(selectedPlayerCurrentVotes + 1);
       return firebase.database().ref().child('presence').child(playerID).child('votes').set(selectedPlayerCurrentVotes + 1);
     })
+
+    console.log('>>>>>>>>>>>>>>>>', playerID)
+  }
+
+  // <input type="radio" name={this.setVote.bind(null, playerID)} value="vote" />
+
+  handleOptionChange = (changeEvent) => {
+    this.setState({
+      selectedOption: changeEvent.target.value
+    });
   }
 
   renderVotingPlayers = (players) => {
@@ -92,9 +106,14 @@ class App extends Component {
       if(this.state.players[playerID].isAlive == true) {
         return (
           <div>
-            <p>hihi{playerID}</p>
+            <p>Player ID: {playerID}</p>
             <p>{this.state.players[playerID].alias}</p>
-            <button onClick={this.setVote.bind(null, playerID)} >Vote</button>
+            <input
+              type="radio"
+              name={playerID}
+              value={playerID}
+              checked={this.state.selectedOption === playerID}
+              onChange={this.handleOptionChange} />
           </div>
         )
       } else {
@@ -111,32 +130,39 @@ class App extends Component {
         mostVotes = this.state.players[playerID].votes
         mostVotedPlayer = playerID
         console.log('mostVotedPLayerID:',mostVotedPlayer)
-        firebase.database().ref().child('presence').child(mostVotedPlayer).child('isAlive').set(false);
       }
     })
+    firebase.database().ref().child('presence').child(mostVotedPlayer).child('isAlive').set(false);
   }
+
+
 
   render() {
     let Timer = null; //Timer is for rendering out the timer below
     Timer = <h3> Game Starting in: {this.state.currentTime} </h3>;
 
-
     return (
       <div className="App {this.state.gameStatus}">
         <div className="player-list">
           <PlayerList players={this.state.players} setVote={this.votedPlayerID} />
+
           <div>
-          <h2>{this.state.countDown}</h2>
+            <h2>{this.state.countDown}</h2>
             {Timer}
           </div>
+
           <div>
             <h2>Voting FORM</h2>
-
-            {this.renderVotingPlayers(this.state.players)}
+            <form id="votingform" onSubmit={this.setVote}>
+              {this.renderVotingPlayers(this.state.players)}
+              <input type="submit" value="Submit" />
+            </form>
           </div>
+
           <div className="VotingKillTest">
             <button onClick={this.voteKillTest} >Kill Test</button>
           </div>
+
           <div className="ready-role">
             <h2>Your role:{this.state.thisplayerRole}</h2>
             <Role onReadyUp={this.onReadyUp} />
