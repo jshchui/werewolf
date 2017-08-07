@@ -135,6 +135,15 @@ class App extends Component {
     firebase.database().ref().child('presence').child(mostVotedPlayer).child('isAlive').set(false);
   }
 
+  voteFormToggle = () => {
+    let formStatus = document.getElementById('voting-form-outer');
+    if(formStatus.style.display === 'none') {
+      formStatus.style.display = 'flex';
+    } else {
+      formStatus.style.display = 'none';
+    }
+  }
+
 
 
   render() {
@@ -143,6 +152,15 @@ class App extends Component {
 
     return (
       <div className="App {this.state.gameStatus}">
+      <div id="voting-form-outer">
+        <form id="votingform" onSubmit={this.setVote}>
+        <h2>Voting for a player to die</h2>
+          {this.renderVotingPlayers(this.state.players)}
+        <input type="submit" value="Submit" />
+        </form>
+        <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
+
+      </div>
         <div className="player-list">
           <PlayerList players={this.state.players} setVote={this.votedPlayerID} />
 
@@ -151,16 +169,10 @@ class App extends Component {
             {Timer}
           </div>
 
-          <div>
-            <h2>Voting FORM</h2>
-            <form id="votingform" onSubmit={this.setVote}>
-              {this.renderVotingPlayers(this.state.players)}
-              <input type="submit" value="Submit" />
-            </form>
-          </div>
 
           <div className="VotingKillTest">
-            <button onClick={this.voteKillTest} >Kill Test</button>
+            <button onClick={this.voteKillTest}>Kill Test</button>
+            <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
           </div>
 
           <div className="ready-role">
