@@ -38,11 +38,15 @@ class App extends Component {
     gameStateRef.set(false);
     gameSettingsRef.child('currentCounter').set('null');
 
+    let lastGameState;
+
     //this.props from index.js
     this.props.firebaseService.setPlayerAlias(id, alias);
     this.props.firebaseService.setOnlineAndWatchPresence(id, alias);
     this.props.firebaseService.countOnlineUser((count) => {
     });
+
+
 
     presenceRef.on('value', snap => {
       this.setState({
@@ -59,6 +63,17 @@ class App extends Component {
         gameStatus: gameSettings.gameState
       })
       console.log("snap", gameSettings)
+
+      if(lastGameState != gameSettings.gameState) {
+
+        if(gameSettings.gameState == "night") {
+          this.voteFormShow();
+        } else if(gameSettings.gameState =="day") {
+          this.voteFormHide();
+        }
+      }
+
+      lastGameState = gameSettings.gameState;
     })
 
     this.props.firebaseService.displayCurrentUser((currentUsers) => {
@@ -144,6 +159,51 @@ class App extends Component {
     }
   }
 
+  voteFormShow = () => {
+    let formStatus = document.getElementById('voting-form-outer');
+    formStatus.style.display = 'flex';
+  }
+
+  voteFormHide = () => {
+    let formStatus = document.getElementById('voting-form-outer');
+    formStatus.style.display = 'none';
+  }
+
+  killSwitch = () => {
+    firebase.database().ref().child('game-settings').child('gameState').set('game-ended');
+  }
+
+  assignRole = () => {
+    const playerSettingsFirebaseObject = firebase.database().ref().child('presence')
+    const Roster = ['Villager', 'Werewolf', 'Seer']
+    playerSettingsFirebaseObject.once('value', snap => {
+      let players = snap.val()
+      Object.keys(players).map((playerID) => {
+        let Role = Roster[Math.floor(Math.random()*3)]
+        playerSettingsFirebaseObject.child(playerID).child('role').set(Role);
+      })
+    })
+  }
+
+  voteKillTestWithoutState = () => {
+    const playerSettingsFirebaseObject = firebase.database().ref().child('presence')
+
+    let mostVotedPlayer;
+    let mostVotes = 0;
+    playerSettingsFirebaseObject.once('value', snap => {
+      let players = snap.val()
+      Object.keys(players).map((playerID) => {
+        console.log(playerID);
+        console.log(players[playerID].votes);
+
+        if(players[playerID].votes > mostVotes) {
+          mostVotes = players[playerID].votes
+          mostVotedPlayer = playerID
+        }
+      })
+    })
+    playerSettingsFirebaseObject.child(mostVotedPlayer).child('isAlive').set(false);
+  }
 
 
   render() {
@@ -158,8 +218,8 @@ class App extends Component {
           {this.renderVotingPlayers(this.state.players)}
         <input type="submit" value="Submit" />
         </form>
+        <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
         <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
-
       </div>
         <div className="player-list">
           <PlayerList players={this.state.players} setVote={this.votedPlayerID} />
@@ -167,6 +227,9 @@ class App extends Component {
           <div>
             <h2>{this.state.countDown}</h2>
             {Timer}
+            <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
+            <button onClick={this.assignRole}>Assign Role</button>
+            <button onClick={this.voteKillTestWithoutState}>KillTest without State</button>
           </div>
 
 

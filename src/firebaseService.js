@@ -17,7 +17,8 @@ export default function(db) {
               online: true,
               ready: false,
               votes: 0,
-              isAlive: true
+              isAlive: true,
+              role: 'notAssigned'
             });
           }
         })

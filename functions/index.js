@@ -84,7 +84,6 @@ exports.endGame = functions.database.ref('presence').onDelete((event) => {
   return event.data.ref.parent.child('presence').once('value').then((snap) => {
 
     console.info('SET FALSE')
-
     return event.data.ref.parent.child('game-settings').set({
       gameState: "game-ended",
       started: false
@@ -98,14 +97,21 @@ exports.startGame = functions.database.ref('presence').onUpdate((event) => {
     const allReady = Object.keys(snap.val()).map((playerID) => {
       return snap.val()[playerID].ready;
     }).indexOf(false) === -1;
+    console.log(event.data.ref.parent.child('game-settings').gameState)
 
-    if (allReady) {
-      return event.data.ref.parent.child('game-settings').set({
-        // started: allReady
-        gameState: "all-ready",
-        currentCounter: null
-      });
-    }
+    event.data.ref.parent.child('game-settings').child('gameState').once('value', snap => {
+      const gameState = snap.val();
+      console.log(gameState);
+      if (allReady && gameState == 'game-ended') {
+        return event.data.ref.parent.child('game-settings').set({
+          // started: allReady
+          gameState: "all-ready",
+          currentCounter: null
+        });
+      } else {
+        return null;
+      }
+    })
 
   });
 });
@@ -113,99 +119,106 @@ exports.startGame = functions.database.ref('presence').onUpdate((event) => {
 exports.gameStateListener = functions.database.ref('game-settings').onUpdate((event) => {
   const gameSettings = event.data.val()
   const gameSettingsFirebaseObject = event.data.ref.parent.child('game-settings')
+  const playerSettingsFirebaseObject = event.data.ref.parent.child('presence')
 
-  if((lastGameState != gameSettings.gameState) || gameSettings.gameState == "all-ready") {
-    if(gameSettings.gameState != "game-ended") {
+  if(lastGameState != gameSettings.gameState) {
+    // if(gameSettings.gameState != "game-ended") {
       switch(gameSettings.gameState) {
         case "all-ready":
-        gameStateAllReady(gameSettingsFirebaseObject)
-        break;
+          assignRole(playerSettingsFirebaseObject)
+          countDownInterval(gameSettingsFirebaseObject, 'night', 5)
+          // gameStateAllReady(gameSettingsFirebaseObject)
+          break;
         case "night":
-        gameStateNight(gameSettingsFirebaseObject)
-        break;
+          countDownInterval(gameSettingsFirebaseObject, 'day', 10)
+          // gameStateNight(gameSettingsFirebaseObject)
+
+          break;
         case "day":
-        gameStateDay(gameSettingsFirebaseObject)
-        break;
+          killMostVotedPlayer(playerSettingsFirebaseObject)
+          countDownInterval(gameSettingsFirebaseObject, 'night', 10)
+          // gameStateDay(gameSettingsFirebaseObject)
+
+          break;
       }
       lastGameState = gameSettings.gameState
-    }
+    // }
   }
 })
 
-const gameStateNight = (gameSettingsFirebaseObject) => {
-  let currentCountdown = 10
-
-    const int = setInterval(() => {
-      if(currentCountdown > 0) {
-        currentCountdown -= 1;
-        gameSettingsFirebaseObject.child('currentCounter').set(currentCountdown)
-        // gameSettingsFirebaseObject.set({
-        //   currentCounter: currentCountdown
-        // })
-      } else {
-        gameSettingsFirebaseObject.child("gameState").once('value', snap => {
-          currentGameState = snap.val();
-          console.log(currentGameState)
-          if (currentGameState != "game-ended") {
-            gameSettingsFirebaseObject.set({
-              gameState: "day",
-              currentCounter: null
-            })
-          }
-        })
-        return clearInterval(int)
-      }
-    }, 1000)
-
-
-}
-
-const gameStateDay = (gameSettingsFirebaseObject) => {
-  let currentCountdown = 10
-
-    const int = setInterval(() => {
-      if(currentCountdown > 0) {
-        currentCountdown -= 1;
-        gameSettingsFirebaseObject.child('currentCounter').set(currentCountdown)
-        // gameSettingsFirebaseObject.set({
-        //   currentCounter: currentCountdown
-        // })
-      } else {
-        gameSettingsFirebaseObject.child('gameState').once('value', snap => {
-          currentGameState = snap.val();
-          console.log(currentGameState)
-          if (currentGameState != "game-ended") {
-            gameSettingsFirebaseObject.set({
-              gameState: "night",
-              currentCounter: null
-            })
-          }
-        })
-        return clearInterval(int)
-      }
-    }, 1000)
-}
-
-
-
-
-
-const gameStateAllReady = (gameSettingsFirebaseObject) => {
-  let currentCountdown = 5
-
+// Kill switch check EVERY SECOND
+const countDownInterval = (gameSettings, nextState, countDownTime) => {
+  let currentCountdown = countDownTime
+  let currentGameState = null;
   const int = setInterval(() => {
-    if(currentCountdown > 0) {
-      currentCountdown -= 1;
-      gameSettingsFirebaseObject.set({
-        currentCounter: currentCountdown
-      })
-    } else {
-      gameSettingsFirebaseObject.set({
-        gameState: "night",
-        currentCounter: null
-      })
-      return clearInterval(int)
-    }
+    gameSettings.child('gameState').once('value', snap => {
+      currentGameState = snap.val();
+      if(currentCountdown > 0 && currentGameState != 'game-ended') {
+        currentCountdown -= 1;
+        gameSettings.child('currentCounter').set(currentCountdown)
+      } else {
+        if(currentGameState != "game-ended") {
+          gameSettings.set({
+            gameState: nextState,
+            currentCounter: null
+          })
+        }
+        return clearInterval(int)
+      }
+    })
   }, 1000)
+}
 
+// kill switch check at end of countdown
+// const countDownInterval = (gameSettings, nextState, countDownTime) => {
+//   let currentCountdown = countDownTime
+//   let currentGameState = null;
+//   const int = setInterval(() => {
+//       if(currentCountdown > 0) {
+//         currentCountdown -= 1;
+//         gameSettings.child('currentCounter').set(currentCountdown)
+//       } else {
+//         gameSettings.child('gameState').once('value', snap => {
+//           currentGameState = snap.val();
+//           if(currentGameState != "game-ended") {
+//             gameSettings.set({
+//               gameState: nextState,
+//               currentCounter: null
+//             })
+//           }
+//         })
+//         return clearInterval(int)
+//       }
+//   }, 1000)
+// }
+
+const killMostVotedPlayer = (playerSettingsFirebaseObject) => {
+  let mostVotedPlayer = 0;
+  let mostVotes = 0;
+
+  playerSettingsFirebaseObject.once('value', snap => {
+    let players = snap.val()
+    Object.keys(players).map((playerID) => {
+      console.log(playerID);
+      console.log(players[playerID].votes);
+
+      if(players[playerID].votes > mostVotes) {
+        mostVotes = players[playerID].votes
+        mostVotedPlayer = playerID
+      }
+    })
+    playerSettingsFirebaseObject.child(mostVotedPlayer).child('isAlive').set(false);
+  })
+}
+
+const assignRole = (playerSettingsFirebaseObject) => {
+  const Roster = ['Villager', 'Werewolf', 'Seer']
+
+  playerSettingsFirebaseObject.once('value', snap => {
+    let players = snap.val()
+    Object.keys(players).map((playerID) => {
+      let Role = Roster[Math.floor(Math.random()*3)]
+      playerSettingsFirebaseObject.child(playerID).child('role').set(Role);
+    })
+  })
 }
