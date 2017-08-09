@@ -62,15 +62,19 @@ class App extends Component {
         countDown: gameSettings.currentCounter,
         gameStatus: gameSettings.gameState
       })
-      console.log("snap", gameSettings)
+      // console.log("snap", gameSettings)
 
       if(lastGameState != gameSettings.gameState) {
+        presenceRef.child(id).child('role').once('value', snap => {
 
-        if(gameSettings.gameState == "night") {
-          this.voteFormShow();
-        } else if(gameSettings.gameState =="day") {
-          this.voteFormHide();
-        }
+          if(gameSettings.gameState == "night" && snap.val() == 'Werewolf') {
+            this.voteFormShow();
+          } else if(gameSettings.gameState =="day") {
+            this.voteFormHide();
+          } else {
+            this.voteFormHide();
+          }
+        })
       }
 
       lastGameState = gameSettings.gameState;
@@ -89,7 +93,7 @@ class App extends Component {
 
 
   onReadyUp = () => {
-    console.log('onreadyup');
+    // console.log('onreadyup');
     return this.props.firebaseService.setReady(this.state.thisplayerID);
   }
 
@@ -101,11 +105,11 @@ class App extends Component {
     firebase.database().ref().child('presence').child(playerID).child('votes')
     .once('value', snap => {
       let selectedPlayerCurrentVotes = snap.val();
-      console.log(selectedPlayerCurrentVotes + 1);
+      // console.log(selectedPlayerCurrentVotes + 1);
       return firebase.database().ref().child('presence').child(playerID).child('votes').set(selectedPlayerCurrentVotes + 1);
     })
 
-    console.log('>>>>>>>>>>>>>>>>', playerID)
+    // console.log('>>>>>>>>>>>>>>>>', playerID)
   }
 
   // <input type="radio" name={this.setVote.bind(null, playerID)} value="vote" />
@@ -175,9 +179,40 @@ class App extends Component {
 
   assignRole = () => {
     const playerSettingsFirebaseObject = firebase.database().ref().child('presence')
+    // const Roster = ['Villager', 'Werewolf', 'Seer']
     const Roster = ['Villager', 'Werewolf', 'Seer']
+    let RosterSize = []
+
     playerSettingsFirebaseObject.once('value', snap => {
       let players = snap.val()
+      for(let x in players) {
+        console.log(x);
+        RosterSize.push(x);
+      }
+
+      //Square root of number of players FLoored
+      // Root n floored
+      let werewolves = 1
+      if(RosterSize.length > 5) {
+        werewolves = Math.floor(Math.sqrt(RosterSize.length));
+      }
+      let seer = 1
+      let villagers = RosterSize.length - werewolves - seer
+
+      //Pushing the roles in Roster
+      for(let i=0; i<werewolves; i++) {
+        Roster.push('Werewolf')
+      }
+
+      for(let i=0; i<seer; i++) {
+        Roster.push('Seer')
+      }
+
+      for(let i=0; i<villagers; i++) {
+        Roster.push('Villager')
+      }
+      
+      console.log(Roster)
       Object.keys(players).map((playerID) => {
         let Role = Roster[Math.floor(Math.random()*3)]
         playerSettingsFirebaseObject.child(playerID).child('role').set(Role);
@@ -193,9 +228,6 @@ class App extends Component {
     playerSettingsFirebaseObject.once('value', snap => {
       let players = snap.val()
       Object.keys(players).map((playerID) => {
-        console.log(playerID);
-        console.log(players[playerID].votes);
-
         if(players[playerID].votes > mostVotes) {
           mostVotes = players[playerID].votes
           mostVotedPlayer = playerID
@@ -212,15 +244,17 @@ class App extends Component {
 
     return (
       <div className="App {this.state.gameStatus}">
-      <div id="voting-form-outer">
-        <form id="votingform" onSubmit={this.setVote}>
-        <h2>Voting for a player to die</h2>
-          {this.renderVotingPlayers(this.state.players)}
-        <input type="submit" value="Submit" />
-        </form>
-        <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
-        <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
-      </div>
+
+        <div id="voting-form-outer">
+          <form id="votingform" onSubmit={this.setVote}>
+          <h2>Voting for a player to die</h2>
+            {this.renderVotingPlayers(this.state.players)}
+          <input type="submit" value="Submit" />
+          </form>
+          <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
+          <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
+        </div>
+
         <div className="player-list">
           <PlayerList players={this.state.players} setVote={this.votedPlayerID} />
 
@@ -242,12 +276,13 @@ class App extends Component {
             <h2>Your role:{this.state.thisplayerRole}</h2>
             <Role onReadyUp={this.onReadyUp} />
           </div>
-
         </div>
+
         <div className="announcer">
           <h1>{this.state.announcement}</h1>
           <h2>{this.state.gameStatus}</h2>
         </div>
+
         <div className="chatRoom-container">
           <ChatRoom player={this.state.alias} />
         </div>

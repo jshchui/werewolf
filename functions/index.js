@@ -199,9 +199,6 @@ const killMostVotedPlayer = (playerSettingsFirebaseObject) => {
   playerSettingsFirebaseObject.once('value', snap => {
     let players = snap.val()
     Object.keys(players).map((playerID) => {
-      console.log(playerID);
-      console.log(players[playerID].votes);
-
       if(players[playerID].votes > mostVotes) {
         mostVotes = players[playerID].votes
         mostVotedPlayer = playerID
