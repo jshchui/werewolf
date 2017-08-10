@@ -3,7 +3,7 @@
   position: relative;
 }
 
-#voting-form-outer {
+#voting-form-outer, #seer-form-outer, #death-alert, #lynch-form-outer {
   position: absolute;
   display: none;
   flex-direction: column;
@@ -14,11 +14,24 @@
   z-index: 2;
 }
 
-
 #votingform {
   padding: 2em;
   background-color: lightyellow;
+}
 
+#seerform {
+  padding: 2em;
+  background-color: lightblue;
+}
+
+#death-alert-box {
+  padding: 2em;
+  background-color: crimson;
+}
+
+#lynchform {
+  padding: 2em;
+  background-color: grey;
 }
 
 .lightblue {

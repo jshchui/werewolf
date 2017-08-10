@@ -126,19 +126,29 @@ exports.gameStateListener = functions.database.ref('game-settings').onUpdate((ev
       switch(gameSettings.gameState) {
         case "all-ready":
           assignRole(playerSettingsFirebaseObject)
-          countDownInterval(gameSettingsFirebaseObject, 'night', 5)
-          // gameStateAllReady(gameSettingsFirebaseObject)
+          countDownInterval(gameSettingsFirebaseObject, 'Werewolf-Phase', 5)
           break;
-        case "night":
-          countDownInterval(gameSettingsFirebaseObject, 'day', 10)
-          // gameStateNight(gameSettingsFirebaseObject)
-
+        case "Werewolf-Phase":
+          setIsAliveFalse(playerSettingsFirebaseObject);
+          countDownInterval(gameSettingsFirebaseObject, 'Seer-Phase', 5)
           break;
-        case "day":
+        case "Seer-Phase":
+          countDownInterval(gameSettingsFirebaseObject, 'Night-Death-Phase', 5)
+          break;
+        case "Night-Death-Phase":
           killMostVotedPlayer(playerSettingsFirebaseObject)
-          countDownInterval(gameSettingsFirebaseObject, 'night', 10)
-          // gameStateDay(gameSettingsFirebaseObject)
-
+          countDownInterval(gameSettingsFirebaseObject, 'Day-Phase', 5)
+          break;
+        case "Day-Phase":
+          setIsAliveFalse(playerSettingsFirebaseObject);
+          countDownInterval(gameSettingsFirebaseObject, 'Lynch-Phase', 5)
+          break;
+        case "Lynch-Phase":
+          countDownInterval(gameSettingsFirebaseObject, 'Day-Death-Phase', 5)
+          break;
+        case "Day-Death-Phase":
+          killMostVotedPlayer(playerSettingsFirebaseObject)
+          countDownInterval(gameSettingsFirebaseObject, 'Werewolf-Phase', 5)
           break;
       }
       lastGameState = gameSettings.gameState
@@ -146,51 +156,51 @@ exports.gameStateListener = functions.database.ref('game-settings').onUpdate((ev
   }
 })
 
-// Kill switch check EVERY SECOND
-const countDownInterval = (gameSettings, nextState, countDownTime) => {
-  let currentCountdown = countDownTime
-  let currentGameState = null;
-  const int = setInterval(() => {
-    gameSettings.child('gameState').once('value', snap => {
-      currentGameState = snap.val();
-      if(currentCountdown > 0 && currentGameState != 'game-ended') {
-        currentCountdown -= 1;
-        gameSettings.child('currentCounter').set(currentCountdown)
-      } else {
-        if(currentGameState != "game-ended") {
-          gameSettings.set({
-            gameState: nextState,
-            currentCounter: null
-          })
-        }
-        return clearInterval(int)
-      }
-    })
-  }, 1000)
-}
-
-// kill switch check at end of countdown
+// // Kill switch check EVERY SECOND
 // const countDownInterval = (gameSettings, nextState, countDownTime) => {
 //   let currentCountdown = countDownTime
 //   let currentGameState = null;
 //   const int = setInterval(() => {
-//       if(currentCountdown > 0) {
+//     gameSettings.child('gameState').once('value', snap => {
+//       currentGameState = snap.val();
+//       if(currentCountdown > 0 && currentGameState != 'game-ended') {
 //         currentCountdown -= 1;
 //         gameSettings.child('currentCounter').set(currentCountdown)
 //       } else {
-//         gameSettings.child('gameState').once('value', snap => {
-//           currentGameState = snap.val();
-//           if(currentGameState != "game-ended") {
-//             gameSettings.set({
-//               gameState: nextState,
-//               currentCounter: null
-//             })
-//           }
-//         })
+//         if(currentGameState != "game-ended") {
+//           gameSettings.set({
+//             gameState: nextState,
+//             currentCounter: null
+//           })
+//         }
 //         return clearInterval(int)
 //       }
+//     })
 //   }, 1000)
 // }
+
+// kill switch check at end of countdown
+const countDownInterval = (gameSettings, nextState, countDownTime) => {
+  let currentCountdown = countDownTime
+  let currentGameState = null;
+  const int = setInterval(() => {
+      if(currentCountdown > 0) {
+        currentCountdown -= 1;
+        gameSettings.child('currentCounter').set(currentCountdown)
+      } else {
+        gameSettings.child('gameState').once('value', snap => {
+          currentGameState = snap.val();
+          if(currentGameState != "game-ended") {
+            gameSettings.set({
+              gameState: nextState,
+              currentCounter: null
+            })
+          }
+        })
+        return clearInterval(int)
+      }
+  }, 1000)
+}
 
 const killMostVotedPlayer = (playerSettingsFirebaseObject) => {
   let mostVotedPlayer = 0;
@@ -204,7 +214,21 @@ const killMostVotedPlayer = (playerSettingsFirebaseObject) => {
         mostVotedPlayer = playerID
       }
     })
-    playerSettingsFirebaseObject.child(mostVotedPlayer).child('isAlive').set(false);
+    if(mostVotedPlayer != 0) {
+      playerSettingsFirebaseObject.child(mostVotedPlayer).child('isAlive').set('recentlyDead');
+      playerSettingsFirebaseObject.child(mostVotedPlayer).child('votes').set(0);
+    }
+  })
+}
+
+const setIsAliveFalse = (playerSettingsFirebaseObject) => {
+  playerSettingsFirebaseObject.once('value', snap => {
+    let players = snap.val()
+    Object.keys(players).map((playerID) => {
+      if(players[playerID].isAlive == 'recentlyDead') {
+        playerSettingsFirebaseObject.child(playerID).child('isAlive').set(false);
+      }
+    })
   })
 }
 

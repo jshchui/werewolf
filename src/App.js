@@ -66,13 +66,24 @@ class App extends Component {
 
       if(lastGameState != gameSettings.gameState) {
         presenceRef.child(id).child('role').once('value', snap => {
-
-          if(gameSettings.gameState == "night" && snap.val() == 'Werewolf') {
-            this.voteFormShow();
-          } else if(gameSettings.gameState =="day") {
-            this.voteFormHide();
+          if(gameSettings.gameState == "Werewolf-Phase" && snap.val() == 'Werewolf') {
+            this.formShow('voting-form-outer');
+          } else if (gameSettings.gameState == "Seer-Phase" && snap.val() == 'Seer') {
+            this.formShow('seer-form-outer');
+          } else if (gameSettings.gameState == "Night-Death-Phase") {
+            this.formShow('death-alert');
+            this.formHide('seer-form-outer');
+            this.formHide('voting-form-outer');
+          } else if (gameSettings.gameState == "Lynch-Phase") {
+            this.formShow('lynch-form-outer');
+          } else if (gameSettings.gameState == "Day-Death-Phase") {
+            this.formShow('death-alert')
+            this.formHide('lynch-form-outer');
           } else {
-            this.voteFormHide();
+            this.formHide('voting-form-outer');
+            this.formHide('seer-form-outer');
+            this.formHide('death-alert');
+            this.formHide('lynch-form-outer');
           }
         })
       }
@@ -141,6 +152,21 @@ class App extends Component {
     })
   }
 
+  renderDeadPlayers = (players) => {
+    return Object.keys(players).map((playerID) => {
+      if(this.state.players[playerID].isAlive == 'recentlyDead') {
+        return (
+          <div>
+            <h3>{this.state.players[playerID].alias}</h3>
+            <p>Role: {this.state.players[playerID].role}</p>
+          </div>
+        )
+      } else {
+        return null;
+      }
+    })
+  }
+
   voteKillTest = () => {
     let mostVotedPlayer;
     let mostVotes = 0;
@@ -163,13 +189,13 @@ class App extends Component {
     }
   }
 
-  voteFormShow = () => {
-    let formStatus = document.getElementById('voting-form-outer');
+  formShow = (form) => {
+    let formStatus = document.getElementById(form);
     formStatus.style.display = 'flex';
   }
 
-  voteFormHide = () => {
-    let formStatus = document.getElementById('voting-form-outer');
+  formHide = (form) => {
+    let formStatus = document.getElementById(form);
     formStatus.style.display = 'none';
   }
 
@@ -211,7 +237,7 @@ class App extends Component {
       for(let i=0; i<villagers; i++) {
         Roster.push('Villager')
       }
-      
+
       console.log(Roster)
       Object.keys(players).map((playerID) => {
         let Role = Roster[Math.floor(Math.random()*3)]
@@ -237,6 +263,20 @@ class App extends Component {
     playerSettingsFirebaseObject.child(mostVotedPlayer).child('isAlive').set(false);
   }
 
+  setIsAliveFalse = () => {
+    const playerSettingsFirebaseObject = firebase.database().ref().child('presence')
+
+    playerSettingsFirebaseObject.once('value', snap => {
+      let players = snap.val()
+      Object.keys(players).map((playerID) => {
+        if(players[playerID].isAlive == 'recentlyDead') {
+          playerSettingsFirebaseObject.child(playerID).child('isAlive').set(false);
+        }
+      })
+    })
+  }
+
+
 
   render() {
     let Timer = null; //Timer is for rendering out the timer below
@@ -247,13 +287,40 @@ class App extends Component {
 
         <div id="voting-form-outer">
           <form id="votingform" onSubmit={this.setVote}>
-          <h2>Voting for a player to die</h2>
+          <h2>Choose a person to get a claw in the face</h2>
             {this.renderVotingPlayers(this.state.players)}
           <input type="submit" value="Submit" />
           </form>
           <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
           <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
         </div>
+
+        <div id="seer-form-outer">
+          <form id="seerform" onSubmit={this.setVote}>
+          <h2>Choose a player to inspect</h2>
+            {this.renderVotingPlayers(this.state.players)}
+          <input type="submit" value="Submit" />
+          </form>
+          <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
+          <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
+        </div>
+
+        <div id="death-alert">
+          <div id="death-alert-box">
+            <h2>{this.renderDeadPlayers(this.state.players)} was clawed in the face</h2>
+          </div>
+        </div>
+
+        <div id="lynch-form-outer">
+          <form id="lynchform" onSubmit={this.setVote}>
+          <h2>Who should get hanged?</h2>
+            {this.renderVotingPlayers(this.state.players)}
+          <input type="submit" value="Submit" />
+          </form>
+          <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
+          <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
+        </div>
+
 
         <div className="player-list">
           <PlayerList players={this.state.players} setVote={this.votedPlayerID} />
@@ -264,6 +331,7 @@ class App extends Component {
             <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
             <button onClick={this.assignRole}>Assign Role</button>
             <button onClick={this.voteKillTestWithoutState}>KillTest without State</button>
+            <button onClick={this.setIsAliveFalse}>RecentlyDead to False</button>
           </div>
 
 
