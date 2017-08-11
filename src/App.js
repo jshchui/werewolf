@@ -21,7 +21,8 @@ class App extends Component {
       thisplayerID: null,
       thisplayerRole: null,
       countDown: null,
-      selectedOption: null
+      selectedOption: null,
+      inspected: null
     };
   }
 
@@ -74,6 +75,12 @@ class App extends Component {
             this.formShow('death-alert');
             this.formHide('seer-form-outer');
             this.formHide('voting-form-outer');
+
+            //Set state inspected here for seer logic
+            this.setState({
+              inspected: null
+            })
+
           } else if (gameSettings.gameState == "Lynch-Phase") {
             this.formShow('lynch-form-outer');
           } else if (gameSettings.gameState == "Day-Death-Phase") {
@@ -119,8 +126,22 @@ class App extends Component {
       // console.log(selectedPlayerCurrentVotes + 1);
       return firebase.database().ref().child('presence').child(playerID).child('votes').set(selectedPlayerCurrentVotes + 1);
     })
+  }
 
-    // console.log('>>>>>>>>>>>>>>>>', playerID)
+  inspect = (event) => {
+    event.preventDefault();
+    let playerID = this.state.selectedOption
+
+    return firebase.database().ref().child('presence').child(playerID).child('role')
+    .once('value', snap => {
+      let selectedPlayerForInspection = snap.val();
+
+      console.log(selectedPlayerForInspection);
+      console.log('state inspect', this.state.inspected)
+      this.setState({
+        inspected: selectedPlayerForInspection
+      })
+    })
   }
 
   // <input type="radio" name={this.setVote.bind(null, playerID)} value="vote" />
@@ -132,10 +153,10 @@ class App extends Component {
   }
 
   renderVotingPlayers = (players) => {
-    return Object.keys(players).map((playerID) => {
+    return Object.keys(players).map((playerID, index) => {
       if(this.state.players[playerID].isAlive == true) {
         return (
-          <div>
+          <div key={index}>
             <p>Player ID: {playerID}</p>
             <p>{this.state.players[playerID].alias}</p>
             <input
@@ -153,12 +174,18 @@ class App extends Component {
   }
 
   renderDeadPlayers = (players) => {
+    // setting inspected state back to null here:
+    //THIS MAKES AN INFINITE LOOP OF ERRORS WHY?
+    // this.setState({
+    //   inspected: null
+    // })
+
     return Object.keys(players).map((playerID) => {
       if(this.state.players[playerID].isAlive == 'recentlyDead') {
         return (
           <div>
-            <h3>{this.state.players[playerID].alias}</h3>
-            <p>Role: {this.state.players[playerID].role}</p>
+            <h3>{this.state.players[playerID].alias} was found dead on the floor</h3>
+            <p>{this.state.players[playerID].alias} was a {this.state.players[playerID].role}</p>
           </div>
         )
       } else {
@@ -282,41 +309,50 @@ class App extends Component {
     let Timer = null; //Timer is for rendering out the timer below
     Timer = <h3> Game Starting in: {this.state.currentTime} </h3>;
 
+    let InspectedPlayer = null
+    if(this.state.inspected != null) {
+      InspectedPlayer = <p>That person is a {this.state.inspected}</p>
+    }
+
     return (
       <div className="App {this.state.gameStatus}">
 
         <div id="voting-form-outer">
           <form id="votingform" onSubmit={this.setVote}>
-          <h2>Choose a person to get a claw in the face</h2>
+            <h2>Choose a person to get a claw in face</h2>
             {this.renderVotingPlayers(this.state.players)}
-          <input type="submit" value="Submit" />
+            <input type="submit" value="Submit" />
           </form>
+
           <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
           <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
         </div>
 
         <div id="seer-form-outer">
-          <form id="seerform" onSubmit={this.setVote}>
-          <h2>Choose a player to inspect</h2>
+          <form id="seerform" onSubmit={this.inspect}>
+            <h2>Choose a player to inspect</h2>
             {this.renderVotingPlayers(this.state.players)}
-          <input type="submit" value="Submit" />
+            <input type="submit" value="Submit" />
+            {InspectedPlayer}
           </form>
+
           <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
           <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
         </div>
 
         <div id="death-alert">
           <div id="death-alert-box">
-            <h2>{this.renderDeadPlayers(this.state.players)} was clawed in the face</h2>
+            <h2>{this.renderDeadPlayers(this.state.players)}</h2>
           </div>
         </div>
 
         <div id="lynch-form-outer">
           <form id="lynchform" onSubmit={this.setVote}>
-          <h2>Who should get hanged?</h2>
-            {this.renderVotingPlayers(this.state.players)}
-          <input type="submit" value="Submit" />
+            <h2>Who should get hanged?</h2>
+              {this.renderVotingPlayers(this.state.players)}
+            <input type="submit" value="Submit" />
           </form>
+
           <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
           <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
         </div>
@@ -332,6 +368,7 @@ class App extends Component {
             <button onClick={this.assignRole}>Assign Role</button>
             <button onClick={this.voteKillTestWithoutState}>KillTest without State</button>
             <button onClick={this.setIsAliveFalse}>RecentlyDead to False</button>
+            <button onClick={this.checkWinCondition}>Check Win Condition</button>
           </div>
 
 

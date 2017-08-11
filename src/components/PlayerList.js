@@ -7,10 +7,10 @@ class PlayerList extends Component {
 
   renderPlayerList = (players) => {
     // debugger
-    return Object.keys(players).map((playerID) => {
+    return Object.keys(players).map((playerID, index) => {
       // this.props.getPlayerVotedId(playerID);
       return (
-        <div>
+        <div key={index}>
         <p id='hey'>{playerID}</p>
         <li>{players[playerID].alias}</li>
         <button onClick={this.props.getPlayerVotedId}>Vote</button>
