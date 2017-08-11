@@ -86,7 +86,15 @@ class App extends Component {
           } else if (gameSettings.gameState == "Day-Death-Phase") {
             this.formShow('death-alert')
             this.formHide('lynch-form-outer');
+          } else if (gameSettings.gameState == "werewolves-win") {
+            this.formShow('werewolves-win')
+          } else if (gameSettings.gameState == "villagers-win") {
+            this.formShow('villagers-win')
           } else {
+            this.formHide('werewolves-win')
+
+            this.formHide('villagers-win')
+
             this.formHide('voting-form-outer');
             this.formHide('seer-form-outer');
             this.formHide('death-alert');
@@ -303,6 +311,37 @@ class App extends Component {
     })
   }
 
+  checkWinCondition = () => {
+    const playerSettingsFirebaseObject = firebase.database().ref().child('presence')
+    playerSettingsFirebaseObject.once('value', snap => {
+      let players = snap.val()
+
+      let werewolves = 0;
+      let villagers = 0;
+      Object.keys(players).map((playerID) => {
+        if(players[playerID].isAlive) {
+          if(players[playerID].role == 'Werewolf') {
+            werewolves += 1;
+          } else {
+            villagers += 1;
+          }
+        }
+      })
+
+      if(werewolves >= villagers) {
+        console.log('Werewolves Win')
+        firebase.database().ref().child('game-settings').child('gameState').set('werewolves-win');
+
+      } else if (werewolves <= 0) {
+        console.log('Villagers Win')
+        firebase.database().ref().child('game-settings').child('gameState').set('villagers-win');
+
+      } else {
+        console.log('The game continues')
+      }
+    })
+  }
+
 
 
   render() {
@@ -355,6 +394,18 @@ class App extends Component {
 
           <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
           <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
+        </div>
+
+        <div id="werewolves-win">
+          <div id="werewolves-win-box">
+            <h2>The werewolves win!</h2>
+          </div>
+        </div>
+
+        <div id="villagers-win">
+          <div id="villagers-win-box">
+            <h2>The villagers-win</h2>
+          </div>
         </div>
 
 

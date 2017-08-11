@@ -129,6 +129,7 @@ exports.gameStateListener = functions.database.ref('game-settings').onUpdate((ev
           countDownInterval(gameSettingsFirebaseObject, 'Werewolf-Phase', 5)
           break;
         case "Werewolf-Phase":
+          checkWinCondition(playerSettingsFirebaseObject, gameSettingsFirebaseObject)
           setIsAliveFalse(playerSettingsFirebaseObject);
           countDownInterval(gameSettingsFirebaseObject, 'Seer-Phase', 5)
           break;
@@ -190,7 +191,7 @@ const countDownInterval = (gameSettings, nextState, countDownTime) => {
       } else {
         gameSettings.child('gameState').once('value', snap => {
           currentGameState = snap.val();
-          if(currentGameState != "game-ended") {
+          if(currentGameState != "game-ended" && currentGameState != "werewolves-win" && currentGameState != "villagers-win") {
             gameSettings.set({
               gameState: nextState,
               currentCounter: null
@@ -241,5 +242,33 @@ const assignRole = (playerSettingsFirebaseObject) => {
       let Role = Roster[Math.floor(Math.random()*3)]
       playerSettingsFirebaseObject.child(playerID).child('role').set(Role);
     })
+  })
+}
+
+const checkWinCondition = (playerSettingsFirebaseObject, gameSettingsFirebaseObject) => {
+  playerSettingsFirebaseObject.once('value', snap => {
+    let players = snap.val()
+
+    let werewolves = 0;
+    let villagers = 0;
+    Object.keys(players).map((playerID) => {
+      if(players[playerID].isAlive) {
+        if(players[playerID].role == 'Werewolf') {
+          werewolves += 1;
+        } else {
+          villagers += 1;
+        }
+      }
+    })
+
+    if(werewolves >= villagers) {
+      gameSettingsFirebaseObject.child('gameState').set('werewolves-win');
+
+    } else if (werewolves <= 0) {
+      gameSettingsFirebaseObject.child('gameState').set('villagers-win');
+
+    } else {
+      console.log('The game continues')
+    }
   })
 }

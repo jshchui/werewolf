@@ -3,7 +3,7 @@
   position: relative;
 }
 
-#voting-form-outer, #seer-form-outer, #death-alert, #lynch-form-outer {
+#voting-form-outer, #seer-form-outer, #death-alert, #lynch-form-outer, #werewolves-win, #villagers-win {
   position: absolute;
   display: none;
   flex-direction: column;
@@ -32,6 +32,12 @@
 #lynchform {
   padding: 2em;
   background-color: grey;
+}
+
+#villagers-win-box, #werewolves-win-box {
+  padding: 3em;
+  color: white;
+  background-color: black;
 }
 
 .lightblue {
