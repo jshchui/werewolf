@@ -68,6 +68,7 @@ class App extends Component {
       if(lastGameState != gameSettings.gameState) {
         presenceRef.child(id).child('role').once('value', snap => {
           if(gameSettings.gameState == "Werewolf-Phase" && snap.val() == 'Werewolf') {
+            this.formHide('death-alert');
             this.formShow('voting-form-outer');
           } else if (gameSettings.gameState == "Seer-Phase" && snap.val() == 'Seer') {
             this.formShow('seer-form-outer');
@@ -80,21 +81,28 @@ class App extends Component {
             this.setState({
               inspected: null
             })
+            console.log('button should be disabled')
+            document.getElementById('killButton').disabled = false;
+            document.getElementById('lynchButton').disabled = false;
+            document.getElementById('inspectButton').disabled = false;
+
 
           } else if (gameSettings.gameState == "Lynch-Phase") {
             this.formShow('lynch-form-outer');
           } else if (gameSettings.gameState == "Day-Death-Phase") {
             this.formShow('death-alert')
             this.formHide('lynch-form-outer');
+
+            document.getElementById('killButton').disabled = false;
+            document.getElementById('lynchButton').disabled = false;
+
           } else if (gameSettings.gameState == "werewolves-win") {
             this.formShow('werewolves-win')
           } else if (gameSettings.gameState == "villagers-win") {
             this.formShow('villagers-win')
           } else {
             this.formHide('werewolves-win')
-
             this.formHide('villagers-win')
-
             this.formHide('voting-form-outer');
             this.formHide('seer-form-outer');
             this.formHide('death-alert');
@@ -128,6 +136,10 @@ class App extends Component {
     event.preventDefault();
     let playerID = this.state.selectedOption
 
+    //disable button after submitting once
+    document.getElementById('killButton').disabled = true;
+    document.getElementById('lynchButton').disabled = true;
+
     firebase.database().ref().child('presence').child(playerID).child('votes')
     .once('value', snap => {
       let selectedPlayerCurrentVotes = snap.val();
@@ -139,6 +151,8 @@ class App extends Component {
   inspect = (event) => {
     event.preventDefault();
     let playerID = this.state.selectedOption
+
+    document.getElementById('inspectButton').disabled = true;
 
     return firebase.database().ref().child('presence').child(playerID).child('role')
     .once('value', snap => {
@@ -172,7 +186,9 @@ class App extends Component {
               name={playerID}
               value={playerID}
               checked={this.state.selectedOption === playerID}
-              onChange={this.handleOptionChange} />
+              onChange={this.handleOptionChange}
+              required
+            />
           </div>
         )
       } else {
@@ -360,7 +376,7 @@ class App extends Component {
           <form id="votingform" onSubmit={this.setVote}>
             <h2>Choose a person to get a claw in face</h2>
             {this.renderVotingPlayers(this.state.players)}
-            <input type="submit" value="Submit" />
+            <input id='killButton' type="submit" value="Submit" />
           </form>
 
           <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
@@ -371,7 +387,7 @@ class App extends Component {
           <form id="seerform" onSubmit={this.inspect}>
             <h2>Choose a player to inspect</h2>
             {this.renderVotingPlayers(this.state.players)}
-            <input type="submit" value="Submit" />
+            <input id='inspectButton' type="submit" value="Submit" />
             {InspectedPlayer}
           </form>
 
@@ -389,7 +405,7 @@ class App extends Component {
           <form id="lynchform" onSubmit={this.setVote}>
             <h2>Who should get hanged?</h2>
               {this.renderVotingPlayers(this.state.players)}
-            <input type="submit" value="Submit" />
+            <input id='lynchButton' type="submit" value="Submit" />
           </form>
 
           <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
