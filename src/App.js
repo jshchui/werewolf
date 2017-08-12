@@ -63,7 +63,6 @@ class App extends Component {
         countDown: gameSettings.currentCounter,
         gameStatus: gameSettings.gameState
       })
-      // console.log("snap", gameSettings)
 
       if(lastGameState != gameSettings.gameState) {
         presenceRef.child(id).child('role').once('value', snap => {
@@ -120,14 +119,21 @@ class App extends Component {
         thisplayerID: id
       })
     });
-
   }// end of component did mount
 
+  formShow = (form) => {
+    let formStatus = document.getElementById(form);
+    formStatus.style.display = 'flex';
+  }
+
+  formHide = (form) => {
+    let formStatus = document.getElementById(form);
+    formStatus.style.display = 'none';
+  }
 
 
 
   onReadyUp = () => {
-    // console.log('onreadyup');
     return this.props.firebaseService.setReady(this.state.thisplayerID);
   }
 
@@ -143,7 +149,6 @@ class App extends Component {
     firebase.database().ref().child('presence').child(playerID).child('votes')
     .once('value', snap => {
       let selectedPlayerCurrentVotes = snap.val();
-      // console.log(selectedPlayerCurrentVotes + 1);
       return firebase.database().ref().child('presence').child(playerID).child('votes').set(selectedPlayerCurrentVotes + 1);
     })
   }
@@ -166,8 +171,6 @@ class App extends Component {
     })
   }
 
-  // <input type="radio" name={this.setVote.bind(null, playerID)} value="vote" />
-
   handleOptionChange = (changeEvent) => {
     this.setState({
       selectedOption: changeEvent.target.value
@@ -183,7 +186,7 @@ class App extends Component {
             <p>{this.state.players[playerID].alias}</p>
             <input
               type="radio"
-              name={playerID}
+              name='voteFormDeath'
               value={playerID}
               checked={this.state.selectedOption === playerID}
               onChange={this.handleOptionChange}
@@ -240,41 +243,41 @@ class App extends Component {
     }
   }
 
-  formShow = (form) => {
-    let formStatus = document.getElementById(form);
-    formStatus.style.display = 'flex';
-  }
-
-  formHide = (form) => {
-    let formStatus = document.getElementById(form);
-    formStatus.style.display = 'none';
-  }
-
   killSwitch = () => {
     firebase.database().ref().child('game-settings').child('gameState').set('game-ended');
   }
 
   assignRole = () => {
     const playerSettingsFirebaseObject = firebase.database().ref().child('presence')
-    // const Roster = ['Villager', 'Werewolf', 'Seer']
-    const Roster = ['Villager', 'Werewolf', 'Seer']
-    let RosterSize = []
+    const Roster = []
 
     playerSettingsFirebaseObject.once('value', snap => {
       let players = snap.val()
-      for(let x in players) {
-        console.log(x);
-        RosterSize.push(x);
-      }
+      let numPlayers = Object.keys(players).length;
 
-      //Square root of number of players FLoored
-      // Root n floored
-      let werewolves = 1
-      if(RosterSize.length > 5) {
-        werewolves = Math.floor(Math.sqrt(RosterSize.length));
+      let werewolves, seer, villagers = 0;
+      if(numPlayers > 5) {
+        werewolves = Math.floor(Math.sqrt(numPlayers));
+        seer = 1;
+        villagers = numPlayers - (werewolves + seer);
+      } else if(numPlayers == 5) {
+        werewolves = 1;
+        seer = 1;
+        villagers = 3;
+      } else if(numPlayers == 4) {
+        werewolves = 1
+        seer = 1;
+        villagers = 2;
+      } else if(numPlayers == 3) {
+        werewolves = 1;
+        seer = 1
+        villagers = 1;
+      } else if(numPlayers == 2) {
+        seer = 1;
+        werewolves = 1;
+      } else if(numPlayers == 1) {
+        seer = 1;
       }
-      let seer = 1
-      let villagers = RosterSize.length - werewolves - seer
 
       //Pushing the roles in Roster
       for(let i=0; i<werewolves; i++) {
@@ -289,10 +292,11 @@ class App extends Component {
         Roster.push('Villager')
       }
 
-      console.log(Roster)
       Object.keys(players).map((playerID) => {
-        let Role = Roster[Math.floor(Math.random()*3)]
-        playerSettingsFirebaseObject.child(playerID).child('role').set(Role);
+        let randomNumber = Math.floor(Math.random() * Roster.length)
+        let selectFromRoster = Roster[randomNumber]
+        Roster.splice(randomNumber, 1);
+        playerSettingsFirebaseObject.child(playerID).child('role').set(selectFromRoster);
       })
     })
   }
@@ -345,11 +349,9 @@ class App extends Component {
       })
 
       if(werewolves >= villagers) {
-        console.log('Werewolves Win')
         firebase.database().ref().child('game-settings').child('gameState').set('werewolves-win');
 
       } else if (werewolves <= 0) {
-        console.log('Villagers Win')
         firebase.database().ref().child('game-settings').child('gameState').set('villagers-win');
 
       } else {

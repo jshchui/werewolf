@@ -112,7 +112,6 @@ exports.startGame = functions.database.ref('presence').onUpdate((event) => {
         return null;
       }
     })
-
   });
 });
 
@@ -129,7 +128,7 @@ exports.gameStateListener = functions.database.ref('game-settings').onUpdate((ev
           countDownInterval(gameSettingsFirebaseObject, 'Werewolf-Phase', 5)
           break;
         case "Werewolf-Phase":
-          // checkWinCondition(playerSettingsFirebaseObject, gameSettingsFirebaseObject)
+          checkWinCondition(playerSettingsFirebaseObject, gameSettingsFirebaseObject)
           setIsAliveFalse(playerSettingsFirebaseObject);
           countDownInterval(gameSettingsFirebaseObject, 'Seer-Phase', 5)
           break;
@@ -234,13 +233,54 @@ const setIsAliveFalse = (playerSettingsFirebaseObject) => {
 }
 
 const assignRole = (playerSettingsFirebaseObject) => {
-  const Roster = ['Villager', 'Werewolf', 'Seer']
+  const Roster = []
 
   playerSettingsFirebaseObject.once('value', snap => {
     let players = snap.val()
+    let numPlayers = Object.keys(players).length;
+
+    let werewolves, seer, villagers = 0;
+    if(numPlayers > 5) {
+      werewolves = Math.floor(Math.sqrt(numPlayers));
+      seer = 1;
+      villagers = numPlayers - (werewolves + seer);
+    } else if(numPlayers == 5) {
+      werewolves = 1;
+      seer = 1;
+      villagers = 3;
+    } else if(numPlayers == 4) {
+      werewolves = 1
+      seer = 1;
+      villagers = 2;
+    } else if(numPlayers == 3) {
+      werewolves = 1;
+      seer = 1
+      villagers = 1;
+    } else if(numPlayers == 2) {
+      seer = 1;
+      werewolves = 1;
+    } else if(numPlayers == 1) {
+      seer = 1;
+    }
+
+    //Pushing the roles in Roster
+    for(let i=0; i<werewolves; i++) {
+      Roster.push('Werewolf')
+    }
+
+    for(let i=0; i<seer; i++) {
+      Roster.push('Seer')
+    }
+
+    for(let i=0; i<villagers; i++) {
+      Roster.push('Villager')
+    }
+
     Object.keys(players).map((playerID) => {
-      let Role = Roster[Math.floor(Math.random()*3)]
-      playerSettingsFirebaseObject.child(playerID).child('role').set(Role);
+      let randomNumber = Math.floor(Math.random() * Roster.length)
+      let selectFromRoster = Roster[randomNumber]
+      Roster.splice(randomNumber, 1);
+      playerSettingsFirebaseObject.child(playerID).child('role').set(selectFromRoster);
     })
   })
 }
