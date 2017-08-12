@@ -13,7 +13,7 @@ class PlayerList extends Component {
         <div key={index}>
         <p id='hey'>{playerID}</p>
         <li>{players[playerID].alias}</li>
-        <button onClick={this.props.getPlayerVotedId}>Vote</button>
+        {/* <button onClick={this.props.getPlayerVotedId}>Vote</button> */}
         </div>
         // players[playerID].username...
       )
@@ -29,8 +29,8 @@ class PlayerList extends Component {
     //   });
     // }
     return (
-      <div>
-        <h2>PlayerList is Here</h2>
+      <div id="alive-player-list">
+        <h2>ALIVE</h2>
         <ul>
           {this.renderPlayerList(this.props.players) }
         </ul>

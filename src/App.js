@@ -14,7 +14,6 @@ class App extends Component {
 
 
     this.state = {
-      announcement: ``,
       players: {},
       alias: '',
       gameStatus: 'unready',
@@ -52,8 +51,7 @@ class App extends Component {
     presenceRef.on('value', snap => {
       this.setState({
         speed: snap.val(),
-        alias: alias,
-        announcement: `Players currently not ready`
+        alias: alias
       });
     });
 
@@ -360,6 +358,16 @@ class App extends Component {
     })
   }
 
+  // <div className="VotingKillTest">
+  //   <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
+  //   <button onClick={this.assignRole}>Assign Role</button>
+  //   <button onClick={this.voteKillTestWithoutState}>KillTest without State</button>
+  //   <button onClick={this.setIsAliveFalse}>RecentlyDead to False</button>
+  //   <button onClick={this.checkWinCondition}>Check Win Condition</button>
+  //   <button onClick={this.voteKillTest}>Kill Test</button>
+  //   <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
+  // </div>
+
 
 
   render() {
@@ -372,60 +380,64 @@ class App extends Component {
     }
 
     return (
-      <div className="App {this.state.gameStatus}">
-
-        <div id="voting-form-outer">
-          <form id="votingform" onSubmit={this.setVote}>
-            <h2>Choose a person to get a claw in face</h2>
-            {this.renderVotingPlayers(this.state.players)}
-            <input id='killButton' type="submit" value="Submit" />
-          </form>
-
-          <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
-          <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
-        </div>
-
-        <div id="seer-form-outer">
-          <form id="seerform" onSubmit={this.inspect}>
-            <h2>Choose a player to inspect</h2>
-            {this.renderVotingPlayers(this.state.players)}
-            <input id='inspectButton' type="submit" value="Submit" />
-            {InspectedPlayer}
-          </form>
-
-          <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
-          <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
-        </div>
-
-        <div id="death-alert">
-          <div id="death-alert-box">
-            <h2>{this.renderDeadPlayers(this.state.players)}</h2>
-          </div>
-        </div>
-
-        <div id="lynch-form-outer">
-          <form id="lynchform" onSubmit={this.setVote}>
-            <h2>Who should get hanged?</h2>
+      <div className="App">
+        <div id="overlapping-components">
+          <div id="voting-form-outer">
+            <form id="votingform" onSubmit={this.setVote}>
+              <h2>Choose a person to get a claw in face</h2>
               {this.renderVotingPlayers(this.state.players)}
-            <input id='lynchButton' type="submit" value="Submit" />
-          </form>
+              <input id='killButton' type="submit" value="Submit" />
+            </form>
 
-          <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
-          <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
-        </div>
+            <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
+            <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
+          </div>
 
-        <div id="werewolves-win">
-          <div id="werewolves-win-box">
-            <h2>The werewolves win!</h2>
+          <div id="seer-form-outer">
+            <form id="seerform" onSubmit={this.inspect}>
+              <h2>Choose a player to inspect</h2>
+              {this.renderVotingPlayers(this.state.players)}
+              <input id='inspectButton' type="submit" value="Submit" />
+              {InspectedPlayer}
+            </form>
+
+            <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
+            <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
+          </div>
+
+          <div id="death-alert">
+            <div id="death-alert-box">
+              <h2>{this.renderDeadPlayers(this.state.players)}</h2>
+            </div>
+          </div>
+
+          <div id="lynch-form-outer">
+            <form id="lynchform" onSubmit={this.setVote}>
+              <h2>Who should get hanged?</h2>
+                {this.renderVotingPlayers(this.state.players)}
+              <input id='lynchButton' type="submit" value="Submit" />
+            </form>
+
+            <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
+            <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
+          </div>
+
+          <div id="werewolves-win">
+            <div id="werewolves-win-box">
+              <h2>The werewolves win!</h2>
+            </div>
+          </div>
+
+          <div id="villagers-win">
+            <div id="villagers-win-box">
+              <h2>The villagers-win</h2>
+            </div>
           </div>
         </div>
 
-        <div id="villagers-win">
-          <div id="villagers-win-box">
-            <h2>The villagers-win</h2>
-          </div>
+        <div className="announcer">
+          <h2>{this.state.gameStatus}</h2>
         </div>
-
 
         <div className="player-list">
           <PlayerList players={this.state.players} setVote={this.votedPlayerID} />
@@ -433,17 +445,6 @@ class App extends Component {
           <div>
             <h2>{this.state.countDown}</h2>
             {Timer}
-            <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
-            <button onClick={this.assignRole}>Assign Role</button>
-            <button onClick={this.voteKillTestWithoutState}>KillTest without State</button>
-            <button onClick={this.setIsAliveFalse}>RecentlyDead to False</button>
-            <button onClick={this.checkWinCondition}>Check Win Condition</button>
-          </div>
-
-
-          <div className="VotingKillTest">
-            <button onClick={this.voteKillTest}>Kill Test</button>
-            <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
           </div>
 
           <div className="ready-role">
@@ -452,10 +453,6 @@ class App extends Component {
           </div>
         </div>
 
-        <div className="announcer">
-          <h1>{this.state.announcement}</h1>
-          <h2>{this.state.gameStatus}</h2>
-        </div>
 
         <div className="chatRoom-container">
           <ChatRoom player={this.state.alias} />
