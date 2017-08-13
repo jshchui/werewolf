@@ -10,6 +10,12 @@
 h2 {
   letter-spacing: 2px;
   color: white;
+  text-transform: uppercase;
+  font-weight: lighter;
+}
+
+h3 {
+  color: white;
 }
 
 p {
@@ -87,7 +93,7 @@ p {
   width: 100%;
   height: 70px;
   /*background-color: lightblue;*/
-  background: linear-gradient(to right, #0b4034 , #232e51);
+  background: linear-gradient(to right, #04002A, #005254);
 }
 
 .chatRoom-container {
@@ -132,13 +138,37 @@ p {
   position: absolute;
   width: 100%;
   bottom: 0;
-  background-color: red;
   padding-bottom: 2em;
 }
+
+.ready-button {
+  border-style: none;
+  padding: 1em 5em;
+  color: white;
+  text-transform: uppercase;
+  font-size: 1em;
+  transition: 0.4s all;
+  background-color: #04002A;
+  /*background: linear-gradient(to right, #04002A, #005254);*/
+}
+
+.ready-button:hover {
+  background-color: #005254;
+  /*background: linear-gradient(to right, red, blue);*/
+}
+
 .single-message {
   display: flex;
   text-align: left;
-  border-top: solid thin #4b4b4b;
+  /*border-top: solid thin #4b4b4b;*/
+}
+
+.single-message-container {
+  float: left;
+  background-color: green;
+  padding: 0 1em;
+  margin: 1em 0;
+  border-radius: 0.5em;
 }
 
 .user-name{

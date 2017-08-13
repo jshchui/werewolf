@@ -59,7 +59,8 @@ class ChatRoom extends Component {
     const nextMessage = {
       id: this.state.messages.length,
       text: this.state.message,
-      player: this.props.player
+      player: this.props.player,
+      playerId: this.props.playerId
     }
 
     firebase.database().ref().child('messages/'+nextMessage.id).set(nextMessage)
@@ -91,14 +92,16 @@ class ChatRoom extends Component {
 
   render() {
     const currentMessage = this.state.messages.map((message, i) => {
-        return (
-          <div className="single-message">
+      return (
+        <div className="single-message">
+          <div className="single-message-container">
             <p className="user-name">{ message.player }: </p>
             <p key={message.id}>
             {message.text}
             </p>
           </div>
-        )
+        </div>
+      )
     })
 
     return (

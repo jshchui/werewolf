@@ -55,7 +55,7 @@ class Role extends Component {
     return (
       <div>
         <h3>Ready?: {this.state.ready}</h3>
-        <button onClick={(e)=> this.handleClick(e)}>Ready</button>
+        <button className="ready-button" onClick={(e)=> this.handleClick(e)}>Ready</button>
       </div>
     )
   }
