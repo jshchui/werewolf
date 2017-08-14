@@ -358,6 +358,19 @@ class App extends Component {
     })
   }
 
+  toggleNav = () => {
+    document.getElementById("player-list").classList.toggle("show");
+
+    // const playerList = document.getElementById('player-list');
+    // if(playerList.style.position == 'absolute') {
+    //   console.log('form-is collapse');
+    //   playerList.style.transform = 'translateX(300px)'
+    // } else {
+    //   playerList.style.transform = 'translateX(0)'
+    //   console.log('form is not collapsed');
+    // }
+  }
+
   // <div className="VotingKillTest">
   //   <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
   //   <button onClick={this.assignRole}>Assign Role</button>
@@ -436,10 +449,17 @@ class App extends Component {
         </div>
 
         <div className="announcer">
+
           <h2>{this.state.gameStatus}</h2>
+          <button className="hamburger" onClick={this.toggleNav}>
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+
         </div>
 
-        <div id="player-list">
+        <div className="show" id="player-list">
           <PlayerList players={this.state.players} setVote={this.votedPlayerID} />
 
           <div>
