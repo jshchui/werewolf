@@ -30,6 +30,10 @@ class ChatRoom extends Component {
           messages: currentMessages
         })
       }
+
+      const elem = document.getElementById('chatRoom-container');
+      elem.scrollTop = elem.scrollHeight;
+
     })
 
     //Here i am trying to get the name to show for messages
@@ -51,6 +55,11 @@ class ChatRoom extends Component {
     this.setState({
       message: event.target.value
     })
+
+    const elem = document.getElementById('chatRoom-container');
+    elem.scrollTop = elem.scrollHeight;
+
+    console.log('new message came');
   }
 
 // I need to get users in here
@@ -64,19 +73,20 @@ class ChatRoom extends Component {
     }
 
     firebase.database().ref().child('messages/'+nextMessage.id).set(nextMessage)
-
+    console.log('i am submitting');
     // var list = Object.assign([], this.state.messages)
     // list.push(nextMessage)
     // this.setState({
     //   message: ' ',
     //   messages: list
     // })
-
-    console.log('i am submitting');
   }
 
   onFormSubmit(event) {
     event.preventDefault();
+
+    const elem = document.getElementById('chatRoom-container');
+    elem.scrollTop = elem.scrollHeight;
 
     document.getElementById('form').reset(); // is this the correct way?
   }
@@ -87,32 +97,76 @@ class ChatRoom extends Component {
         <li>{players[playerID].alias}</li> // players[playerID].username...
       )
     })
-
   }
 
   render() {
+    let lastMessageId= null;
+
     const currentMessage = this.state.messages.map((message, i) => {
-      return (
-        <div className="single-message">
-          <div className="single-message-container">
-            <p className="user-name">{ message.player }: </p>
-            <p key={message.id}>
-            {message.text}
-            </p>
-          </div>
-        </div>
-      )
+      if(message.playerId == this.props.playerId) {
+        if(lastMessageId == message.playerId) {
+          lastMessageId = message.playerId;
+          return (
+            <div className="single-message-self">
+              <div className="single-message-container cancel-margin">
+                <p key={message.id}>
+                  {message.text}
+                </p>
+              </div>
+            </div>
+          )
+        } else {
+          lastMessageId = message.playerId;
+          return (
+            <div className="single-message-self">
+              <div className="single-message-container">
+                <p className="user-name-you">{ message.player }: </p>
+                <p key={message.id}>
+                  {message.text}
+                </p>
+              </div>
+            </div>
+          )
+        }
+      } else {
+        if(lastMessageId == message.playerId) {
+          lastMessageId = message.playerId;
+          return (
+            <div className="single-message">
+              <div className="single-message-container cancel-margin">
+                <p key={message.id}>
+                  {message.text}
+                </p>
+              </div>
+            </div>
+          )
+        } else {
+          lastMessageId = message.playerId;
+          return (
+            <div className="single-message">
+              <div className="single-message-container">
+                <p className="user-name">{ message.player }: </p>
+                <p key={message.id}>
+                  {message.text}
+                </p>
+              </div>
+            </div>
+          )
+        }
+      }
     })
 
     return (
-      <div className="chatRoom-inner-container">
-        <ol className="message-submitted">
-          {currentMessage}
-        </ol>
-        <form className="message-form" id='form' onSubmit={this.onFormSubmit}>
-          <input className="message-input" onChange={this.updateMessage} type="text" placeholder="Message" />
-          <button className="message-submit" onClick={this.submitMessage}>Submit Message</button>
-        </form>
+      <div id="chatRoom-container">
+        <div className="chatRoom-inner-container">
+          <ol className="message-submitted">
+            {currentMessage}
+          </ol>
+          <form className="message-form" id='form' onSubmit={this.onFormSubmit}>
+            <input className="message-input" onChange={this.updateMessage} type="text" placeholder="Message" />
+            <button className="message-submit" onClick={this.submitMessage}>Submit</button>
+          </form>
+        </div>
       </div>
     )
   }

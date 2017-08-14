@@ -67,12 +67,14 @@ p {
   background-color: lightyellow;
 }
 
-.player-list {
+#player-list {
   float: left;
   background-color: #262626;
-  width: 30%;
+  width: 25%;
+  min-width: 300px;
   height: calc(100vh - 70px);
   position: relative;
+  z-index: 4;
 }
 
 #alive-player-list {
@@ -96,9 +98,10 @@ p {
   background: linear-gradient(to right, #04002A, #005254);
 }
 
-.chatRoom-container {
+#chatRoom-container {
+  max-width: calc(100% - 300px);
   float: left;
-  width: 70%;
+  width: 75%;
   height: calc(100vh - 80px);
   position: relative;
   overflow: auto;
@@ -120,7 +123,7 @@ p {
 .message-form {
   display:flex;
   bottom: 0;
-  width: 70%;
+  width: 75%;
   position: fixed;
 }
 
@@ -132,6 +135,11 @@ p {
 
 .message-submit {
   width: 20%;
+  border-style: none;
+  background-color: #04002A;
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
 }
 
 .ready-role {
@@ -163,16 +171,44 @@ p {
   /*border-top: solid thin #4b4b4b;*/
 }
 
-.single-message-container {
+.single-message-self {
+  display: flex;
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.single-message-self > .single-message-container {
   float: left;
-  background-color: green;
+  background-color: #04002A;
   padding: 0 1em;
-  margin: 1em 0;
+  margin-top: 1em;
   border-radius: 0.5em;
 }
 
+.single-message-container {
+  float: left;
+  background-color: #005254;
+  padding: 0 1em;
+  margin-top: 1.2em;
+  border-radius: 0.5em;
+}
+
+.cancel-margin {
+  margin-top: 0.2em !important;
+}
+
 .user-name{
-  width: 100px;
+  color: #c32929;
+  min-width: 75px;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+
+.user-name-you {
+  color: green;
+  min-width: 75px;
   text-transform: uppercase;
   font-weight: bold;
   letter-spacing: 1px;
@@ -185,4 +221,22 @@ p {
   padding: 2em;
   font-size: 1em;
   z-index: 99;
+}
+
+@media (max-width: 1020px) {
+  #player-list {
+    position: absolute;
+    transform: translateX(-300px);
+    height: 100vh;
+
+  }
+
+  #chatRoom-container {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .message-form {
+    width: 100%;
+  }
 }

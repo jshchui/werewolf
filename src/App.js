@@ -26,7 +26,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    const alias = prompt('What is your alias');
+    const alias = prompt('What is your alias') || 'Unnamed Person';
     const id = Math.floor(Date.now()).toString();
 
     const rootRef = firebase.database().ref();
@@ -439,7 +439,7 @@ class App extends Component {
           <h2>{this.state.gameStatus}</h2>
         </div>
 
-        <div className="player-list">
+        <div id="player-list">
           <PlayerList players={this.state.players} setVote={this.votedPlayerID} />
 
           <div>
@@ -454,9 +454,7 @@ class App extends Component {
         </div>
 
 
-        <div className="chatRoom-container">
-          <ChatRoom player={this.state.alias} playerId={this.state.thisplayerID} />
-        </div>
+        <ChatRoom player={this.state.alias} playerId={this.state.thisplayerID} />
       </div>
     );
   }
