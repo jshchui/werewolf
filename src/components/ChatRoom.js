@@ -118,12 +118,14 @@ class ChatRoom extends Component {
         } else {
           lastMessageId = message.playerId;
           return (
-            <div className="single-message-self">
-              <div className="single-message-container">
-                <p className="user-name-you">{ message.player }: </p>
-                <p key={message.id}>
-                  {message.text}
-                </p>
+            <div>
+              <h3 className="user-name-you">{ message.player }: </h3>
+              <div className="single-message-self">
+                <div className="single-message-container">
+                  <p key={message.id}>
+                    {message.text}
+                  </p>
+                </div>
               </div>
             </div>
           )
@@ -143,12 +145,14 @@ class ChatRoom extends Component {
         } else {
           lastMessageId = message.playerId;
           return (
-            <div className="single-message">
-              <div className="single-message-container">
-                <p className="user-name">{ message.player }: </p>
-                <p key={message.id}>
-                  {message.text}
-                </p>
+            <div>
+              <h3 className="user-name">{ message.player }: </h3>
+              <div className="single-message">
+                <div className="single-message-container">
+                  <p key={message.id}>
+                    {message.text}
+                  </p>
+                </div>
               </div>
             </div>
           )

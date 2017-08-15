@@ -21,7 +21,8 @@ class App extends Component {
       thisplayerRole: null,
       countDown: null,
       selectedOption: null,
-      inspected: null
+      inspected: null,
+      menuVisible: false
     };
   }
 
@@ -49,11 +50,20 @@ class App extends Component {
 
 
     presenceRef.on('value', snap => {
+
       this.setState({
         speed: snap.val(),
         alias: alias
       });
     });
+
+    // checks the players role and displays it at the bottom
+    presenceRef.child(id).child('role').on('value', snap => {
+      let role = snap.val()
+      this.setState({
+        thisplayerRole: role
+      })
+    })
 
     gameSettingsRef.on('value', snap => {
       const gameSettings = snap.val()
@@ -179,17 +189,20 @@ class App extends Component {
     return Object.keys(players).map((playerID, index) => {
       if(this.state.players[playerID].isAlive == true) {
         return (
-          <div key={index}>
-            <p>Player ID: {playerID}</p>
-            <p>{this.state.players[playerID].alias}</p>
-            <input
-              type="radio"
-              name='voteFormDeath'
-              value={playerID}
-              checked={this.state.selectedOption === playerID}
-              onChange={this.handleOptionChange}
-              required
-            />
+          <div class="vote_selections" key={index}>
+            {/* <p>Player ID: {playerID}</p> */}
+              <input
+                type="radio"
+                name='voteFormDeath'
+                value={playerID}
+                checked={this.state.selectedOption === playerID}
+                onChange={this.handleOptionChange}
+                id={playerID}
+                required
+              />
+            <label htmlFor={playerID}>
+              {this.state.players[playerID].alias}
+            </label>
           </div>
         )
       } else {
@@ -233,7 +246,7 @@ class App extends Component {
   }
 
   voteFormToggle = () => {
-    let formStatus = document.getElementById('voting-form-outer');
+    let formStatus = document.getElementById('seer-form-outer');
     if(formStatus.style.display === 'none') {
       formStatus.style.display = 'flex';
     } else {
@@ -359,16 +372,10 @@ class App extends Component {
   }
 
   toggleNav = () => {
-    document.getElementById("player-list").classList.toggle("show");
-
-    // const playerList = document.getElementById('player-list');
-    // if(playerList.style.position == 'absolute') {
-    //   console.log('form-is collapse');
-    //   playerList.style.transform = 'translateX(300px)'
-    // } else {
-    //   playerList.style.transform = 'translateX(0)'
-    //   console.log('form is not collapsed');
-    // }
+    // document.getElementById("player-list").classList.toggle("show");
+    this.setState({
+      menuVisible: !this.state.menuVisible
+    })
   }
 
   // <div className="VotingKillTest">
@@ -384,8 +391,8 @@ class App extends Component {
 
 
   render() {
-    let Timer = null; //Timer is for rendering out the timer below
-    Timer = <h3> Game Starting in: {this.state.currentTime} </h3>;
+    // let Timer = null; //Timer is for rendering out the timer below
+    // Timer = <h3> Game Starting in: {this.state.currentTime} </h3>;
 
     let InspectedPlayer = null
     if(this.state.inspected != null) {
@@ -413,9 +420,6 @@ class App extends Component {
               <input id='inspectButton' type="submit" value="Submit" />
               {InspectedPlayer}
             </form>
-
-            <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
-            <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
           </div>
 
           <div id="death-alert">
@@ -450,7 +454,8 @@ class App extends Component {
 
         <div className="announcer">
 
-          <h2>{this.state.gameStatus}</h2>
+          <h2>{this.state.gameStatus} - </h2>
+          <h2>&nbsp;{this.state.countDown}</h2>
           <button className="hamburger" onClick={this.toggleNav}>
             <span></span>
             <span></span>
@@ -462,13 +467,10 @@ class App extends Component {
         <div className="show" id="player-list">
           <PlayerList players={this.state.players} setVote={this.votedPlayerID} />
 
-          <div>
-            <h2>{this.state.countDown}</h2>
-            {Timer}
-          </div>
+          <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
 
           <div className="ready-role">
-            <h2>Your role:{this.state.thisplayerRole}</h2>
+            <h2>Your role: {this.state.thisplayerRole}</h2>
             <Role onReadyUp={this.onReadyUp} />
           </div>
         </div>

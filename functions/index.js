@@ -128,7 +128,7 @@ exports.gameStateListener = functions.database.ref('game-settings').onUpdate((ev
           countDownInterval(gameSettingsFirebaseObject, 'Werewolf-Phase', 5)
           break;
         case "Werewolf-Phase":
-          checkWinCondition(playerSettingsFirebaseObject, gameSettingsFirebaseObject)
+          // checkWinCondition(playerSettingsFirebaseObject, gameSettingsFirebaseObject)
           setIsAliveFalse(playerSettingsFirebaseObject);
           countDownInterval(gameSettingsFirebaseObject, 'Seer-Phase', 5)
           break;
