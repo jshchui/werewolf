@@ -11,7 +11,7 @@ class PlayerList extends Component {
       // this.props.getPlayerVotedId(playerID);
       return (
         <div key={index}>
-        <p id='hey'>{playerID}</p>
+        {/* <p id='hey'>{playerID}</p> */}
         <li>{players[playerID].alias}</li>
         {/* <button onClick={this.props.getPlayerVotedId}>Vote</button> */}
         </div>

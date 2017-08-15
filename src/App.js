@@ -198,6 +198,16 @@ class App extends Component {
     });
   }
 
+  renderVotesOnPlayers = (players) => {
+    return Object.keys(players).map((playerID, index) => {
+      // console.log(`players`,players[playerID].selectedPerson);
+      return (
+        <h3>{this.state.players[playerID].alias} has selected {players[playerID].selectedPerson || 'no-one'}</h3>
+        // <h3>{this.state.players[playerID].alias}: {this.state.players[playerID].votes}</h3>
+      )
+    })
+  }
+
   renderVotingPlayers = (players) => {
     return Object.keys(players).map((playerID, index) => {
       if(this.state.players[playerID].isAlive == true) {
@@ -215,8 +225,8 @@ class App extends Component {
               />
             <label htmlFor={playerID}
               onClick=
-              {() => this.playerSelected(this.state.players[this.state.thisplayerID].alias,
-              this.state.players[playerID].alias)}>
+              {() => this.playerSelected(this.state.players[this.state.thisplayerID],
+              this.state.players[playerID])}>
               {this.state.players[playerID].alias}
             </label>
           </div>
@@ -227,9 +237,10 @@ class App extends Component {
     })
   }
 
-  playerSelected = (thisplayerName, selectedPlayerName) => {
-    console.log(`${thisplayerName} selected ${selectedPlayerName}`);
-    // firebase.database().ref().child('voteMessage/'+
+  playerSelected = (thisplayerId, selectedPlayerId) => {
+    console.log(`${thisplayerId.alias} selected ${selectedPlayerId.alias}`);
+    console.log(thisplayerId)
+    firebase.database().ref().child('presence').child(this.state.thisplayerID).child('selectedPerson').set(selectedPlayerId.alias);
   }
 
   renderDeadPlayers = (players) => {
@@ -418,6 +429,7 @@ class App extends Component {
       <div className="App">
         <div id="overlapping-components">
           <div id="voting-form-outer">
+            {this.renderVotesOnPlayers(this.state.players)}
             <form id="votingform" onSubmit={this.setVote}>
               <h2>Choose a person to get a claw in face</h2>
               {this.renderVotingPlayers(this.state.players)}
