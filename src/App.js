@@ -21,14 +21,14 @@ class App extends Component {
       thisplayerRole: null,
       countDown: null,
       selectedOption: null,
-      inspected: null,
-      menuVisible: false
+      inspected: null
+      // menuVisible: false
     };
   }
 
   componentDidMount() {
-    const alias = prompt('What is your alias') || 'Unnamed Person';
     const id = Math.floor(Date.now()).toString();
+    const alias = prompt('What is your alias') || `Person ${id.toString().slice(-2)}`;
 
     const rootRef = firebase.database().ref();
     const presenceRef = rootRef.child('presence');
@@ -88,7 +88,6 @@ class App extends Component {
             this.setState({
               inspected: null
             })
-            console.log('button should be disabled')
             document.getElementById('killButton').disabled = false;
             document.getElementById('lynchButton').disabled = false;
             document.getElementById('inspectButton').disabled = false;
@@ -154,11 +153,27 @@ class App extends Component {
     document.getElementById('killButton').disabled = true;
     document.getElementById('lynchButton').disabled = true;
 
+    const votingOptions = event.target.querySelectorAll('input[type="radio"]')
+    let hiddenOptions = []
+
+    votingOptions.forEach(player => {
+      let currentPlayer = player.nextSibling
+
+      if (player.id != playerID) {
+        currentPlayer.style.display = 'none'
+        hiddenOptions.push(currentPlayer)
+      }
+    })
+
     firebase.database().ref().child('presence').child(playerID).child('votes')
     .once('value', snap => {
       let selectedPlayerCurrentVotes = snap.val();
       return firebase.database().ref().child('presence').child(playerID).child('votes').set(selectedPlayerCurrentVotes + 1);
     })
+
+    setTimeout(() => {
+      hiddenOptions.forEach(player => player.style.display = 'inline-block')
+    }, 3000)
   }
 
   inspect = (event) => {
@@ -171,8 +186,6 @@ class App extends Component {
     .once('value', snap => {
       let selectedPlayerForInspection = snap.val();
 
-      console.log(selectedPlayerForInspection);
-      console.log('state inspect', this.state.inspected)
       this.setState({
         inspected: selectedPlayerForInspection
       })
@@ -189,7 +202,7 @@ class App extends Component {
     return Object.keys(players).map((playerID, index) => {
       if(this.state.players[playerID].isAlive == true) {
         return (
-          <div class="vote_selections" key={index}>
+          <div className="vote_selections" key={index}>
             {/* <p>Player ID: {playerID}</p> */}
               <input
                 type="radio"
@@ -200,7 +213,10 @@ class App extends Component {
                 id={playerID}
                 required
               />
-            <label htmlFor={playerID}>
+            <label htmlFor={playerID}
+              onClick=
+              {() => this.playerSelected(this.state.players[this.state.thisplayerID].alias,
+              this.state.players[playerID].alias)}>
               {this.state.players[playerID].alias}
             </label>
           </div>
@@ -211,12 +227,12 @@ class App extends Component {
     })
   }
 
+  playerSelected = (thisplayerName, selectedPlayerName) => {
+    console.log(`${thisplayerName} selected ${selectedPlayerName}`);
+    // firebase.database().ref().child('voteMessage/'+
+  }
+
   renderDeadPlayers = (players) => {
-    // setting inspected state back to null here:
-    //THIS MAKES AN INFINITE LOOP OF ERRORS WHY?
-    // this.setState({
-    //   inspected: null
-    // })
 
     return Object.keys(players).map((playerID) => {
       if(this.state.players[playerID].isAlive == 'recentlyDead') {
@@ -239,14 +255,13 @@ class App extends Component {
       if(this.state.players[playerID].votes > mostVotes) {
         mostVotes = this.state.players[playerID].votes
         mostVotedPlayer = playerID
-        console.log('mostVotedPLayerID:',mostVotedPlayer)
       }
     })
     firebase.database().ref().child('presence').child(mostVotedPlayer).child('isAlive').set(false);
   }
 
   voteFormToggle = () => {
-    let formStatus = document.getElementById('seer-form-outer');
+    let formStatus = document.getElementById('voting-form-outer');
     if(formStatus.style.display === 'none') {
       formStatus.style.display = 'flex';
     } else {
@@ -372,10 +387,10 @@ class App extends Component {
   }
 
   toggleNav = () => {
-    // document.getElementById("player-list").classList.toggle("show");
-    this.setState({
-      menuVisible: !this.state.menuVisible
-    })
+    document.getElementById("player-list").classList.toggle("show");
+    // this.setState({
+    //   menuVisible: !this.state.menuVisible
+    // })
   }
 
   // <div className="VotingKillTest">
@@ -408,9 +423,6 @@ class App extends Component {
               {this.renderVotingPlayers(this.state.players)}
               <input id='killButton' type="submit" value="Submit" />
             </form>
-
-            <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
-            <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
           </div>
 
           <div id="seer-form-outer">

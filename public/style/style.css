@@ -38,9 +38,17 @@ p {
   transition: 0.3s all;
 }
 
+#inspectButton, #killButton {
+  margin-top: 0.5em;
+  padding: 1em 2em;
+  border: none;
+  background-color: white;
+}
+
 #votingform {
   padding: 2em;
-  background-color: lightyellow;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 #seerform {
@@ -49,12 +57,6 @@ p {
   box-sizing: border-box;
 }
 
-#inspectButton {
-  margin-top: 0.5em;
-  padding: 1em 2em;
-  border: none;
-  background-color: white;
-}
 
 #death-alert-box {
   padding: 2em;
