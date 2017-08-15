@@ -32,11 +32,11 @@ class App extends Component {
 
     const rootRef = firebase.database().ref();
     const presenceRef = rootRef.child('presence');
-    const gameStateRef = rootRef.child('react').child('gameState');
+    // const gameStateRef = rootRef.child('react').child('gameState');
     const reactdbStateRef = rootRef.child('react');
     // checks the cycle
     const gameSettingsRef = rootRef.child('game-settings');
-    gameStateRef.set(false);
+    // gameStateRef.set(false);
     gameSettingsRef.child('currentCounter').set('null');
 
     let lastGameState;
@@ -171,6 +171,8 @@ class App extends Component {
       return firebase.database().ref().child('presence').child(playerID).child('votes').set(selectedPlayerCurrentVotes + 1);
     })
 
+    firebase.database().ref().child('presence').child(playerID).child('currentAction').set('confirmed-vote');
+
     setTimeout(() => {
       hiddenOptions.forEach(player => player.style.display = 'inline-block')
     }, 3000)
@@ -199,13 +201,34 @@ class App extends Component {
   }
 
   renderVotesOnPlayers = (players) => {
-    return Object.keys(players).map((playerID, index) => {
-      // console.log(`players`,players[playerID].selectedPerson);
-      return (
-        <h3>{this.state.players[playerID].alias} has selected {players[playerID].selectedPerson || 'no-one'}</h3>
-        // <h3>{this.state.players[playerID].alias}: {this.state.players[playerID].votes}</h3>
-      )
-    })
+    // firebase.database().ref().child('presence').once('value', (snap) => {
+      return Object.keys(players).map((playerID, index) => {
+          // const playerAction = snap.val();
+          // console.log(playerAction[playerID].currentAction);
+          // if(playerAction == 'confirmed-vote') {
+
+
+          console.log(players[playerID].currentAction)
+          if(players[playerID].currentAction == 'confirmed-vote')
+            return (
+              <h3>{this.state.players[playerID].alias} has LOCKED IN FOR {players[playerID].selectedPerson || 'no-one'}</h3>
+            )
+          else {
+            return (
+              <h3>{this.state.players[playerID].alias} has selected {players[playerID].selectedPerson || 'no-one'}</h3>
+            )
+          }
+
+
+            // console.log('confiredvote running')
+          // } else {
+            // console.log('elseisrunning')
+            // return (
+              // <h3>{this.state.players[playerID].alias} has selected {players[playerID].selectedPerson || 'no-one'}</h3>
+              // <h3>{this.state.players[playerID].alias}: {this.state.players[playerID].votes}</h3>
+            // )
+          // }
+      })
   }
 
   renderVotingPlayers = (players) => {
