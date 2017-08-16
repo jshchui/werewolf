@@ -7,6 +7,14 @@
   font-family: 'Muli', sans-serif;
 }
 
+h1 {
+  font-size: 1.6em;
+  letter-spacing: 2px;
+  color: white;
+  text-transform: uppercase;
+  font-weight: lighter;
+}
+
 h2 {
   letter-spacing: 2px;
   color: white;
@@ -38,7 +46,7 @@ p {
   transition: 0.3s all;
 }
 
-#inspectButton, #killButton {
+#inspectButton, #killButton, #lynchButton {
   margin-top: 0.5em;
   padding: 1em 2em;
   border: none;
@@ -65,7 +73,8 @@ p {
 
 #lynchform {
   padding: 2em;
-  background-color: grey;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 #villagers-win-box, #werewolves-win-box {
@@ -343,8 +352,6 @@ input[type="radio"] {
     position: absolute;
     /*transform: translateX(-300px);*/
     transition: 0.4s all;
-
-
   }
 
   .show {
@@ -358,5 +365,21 @@ input[type="radio"] {
 
   .message-form {
     width: 100%;
+  }
+
+  h1 {
+    font-size: 1.4em;
+  }
+
+  h2 {
+    font-size:1.2em;
+  }
+
+  h3 {
+    font-size:1.2em;
+  }
+
+  #alive-player-list > ul {
+    font-size:1em;
   }
 }

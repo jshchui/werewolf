@@ -73,11 +73,12 @@ class App extends Component {
       })
 
       if(lastGameState != gameSettings.gameState) {
-        presenceRef.child(id).child('role').once('value', snap => {
-          if(gameSettings.gameState == "Werewolf-Phase" && snap.val() == 'Werewolf') {
+        presenceRef.child(id).once('value', snap => {
+          const thisPlayer = snap.val()
+          if(gameSettings.gameState == "Werewolf-Phase" && thisPlayer.role == 'Werewolf' && thisPlayer.isAlive) {
             this.formHide('death-alert');
             this.formShow('voting-form-outer');
-          } else if (gameSettings.gameState == "Seer-Phase" && snap.val() == 'Seer') {
+          } else if (gameSettings.gameState == "Seer-Phase" && thisPlayer.role == 'Seer' && thisPlayer.isAlive) {
             this.formShow('seer-form-outer');
           } else if (gameSettings.gameState == "Night-Death-Phase") {
             this.formShow('death-alert');
@@ -270,7 +271,6 @@ class App extends Component {
   }
 
   renderDeadPlayers = (players) => {
-
     return Object.keys(players).map((playerID) => {
       if(this.state.players[playerID].isAlive == 'recentlyDead') {
         return (
@@ -298,7 +298,7 @@ class App extends Component {
   }
 
   voteFormToggle = () => {
-    let formStatus = document.getElementById('voting-form-outer');
+    let formStatus = document.getElementById('lynch-form-outer');
     if(formStatus.style.display === 'none') {
       formStatus.style.display = 'flex';
     } else {
@@ -425,9 +425,6 @@ class App extends Component {
 
   toggleNav = () => {
     document.getElementById("player-list").classList.toggle("show");
-    // this.setState({
-    //   menuVisible: !this.state.menuVisible
-    // })
   }
 
   // <div className="VotingKillTest">
@@ -479,14 +476,12 @@ class App extends Component {
           </div>
 
           <div id="lynch-form-outer">
+            {this.renderVotesOnPlayers(this.state.players)}
             <form id="lynchform" onSubmit={this.setVote}>
               <h2>Who should get hanged?</h2>
                 {this.renderVotingPlayers(this.state.players)}
               <input id='lynchButton' type="submit" value="Submit" />
             </form>
-
-            <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
-            <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
           </div>
 
           <div id="werewolves-win">
@@ -504,8 +499,8 @@ class App extends Component {
 
         <div className="announcer">
 
-          <h2>{this.state.gameStatus} - </h2>
-          <h2>&nbsp;{this.state.countDown}</h2>
+          <h1>{this.state.gameStatus} - </h1>
+          <h1>&nbsp;{this.state.countDown}</h1>
           <button className="hamburger" onClick={this.toggleNav}>
             <span></span>
             <span></span>
@@ -516,7 +511,7 @@ class App extends Component {
 
         <div className="show" id="player-list">
           <PlayerList players={this.state.players} setVote={this.votedPlayerID} thisPlayer={this.state.thisplayerID}/>
-          <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
+          {/* <button onClick={this.voteFormToggle}>Voting Form Toggle</button> */}
 
           <div className="ready-role">
             <h2>Your role: {this.state.thisplayerRole}</h2>

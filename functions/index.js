@@ -128,12 +128,12 @@ exports.gameStateListener = functions.database.ref('game-settings').onUpdate((ev
           countDownInterval(gameSettingsFirebaseObject, 'Werewolf-Phase', 5)
           break;
         case "Werewolf-Phase":
-          // checkWinCondition(playerSettingsFirebaseObject, gameSettingsFirebaseObject)
+          checkWinCondition(playerSettingsFirebaseObject, gameSettingsFirebaseObject)
           setIsAliveFalse(playerSettingsFirebaseObject);
-          countDownInterval(gameSettingsFirebaseObject, 'Seer-Phase', 5)
+          countDownInterval(gameSettingsFirebaseObject, 'Seer-Phase', 10)
           break;
         case "Seer-Phase":
-          countDownInterval(gameSettingsFirebaseObject, 'Night-Death-Phase', 5)
+          countDownInterval(gameSettingsFirebaseObject, 'Night-Death-Phase', 7)
           break;
         case "Night-Death-Phase":
           killMostVotedPlayer(playerSettingsFirebaseObject)
@@ -141,10 +141,10 @@ exports.gameStateListener = functions.database.ref('game-settings').onUpdate((ev
           break;
         case "Day-Phase":
           setIsAliveFalse(playerSettingsFirebaseObject);
-          countDownInterval(gameSettingsFirebaseObject, 'Lynch-Phase', 5)
+          countDownInterval(gameSettingsFirebaseObject, 'Lynch-Phase', 15)
           break;
         case "Lynch-Phase":
-          countDownInterval(gameSettingsFirebaseObject, 'Day-Death-Phase', 5)
+          countDownInterval(gameSettingsFirebaseObject, 'Day-Death-Phase', 10)
           break;
         case "Day-Death-Phase":
           killMostVotedPlayer(playerSettingsFirebaseObject)
