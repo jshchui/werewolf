@@ -100,6 +100,18 @@ input[type="radio"] {
   display: none;
 }
 
+.voteOnPlayers {
+  font-weight: lighter;
+}
+
+.selecting {
+  color: green;
+}
+
+.confirmed {
+  color: red;
+  font-weight: bold;
+}
 
 .lightblue {
   background-color: lightblue;
@@ -131,6 +143,15 @@ input[type="radio"] {
   padding-left: 0;
   list-style-type: none;
   font-size: 1.5em;
+}
+
+.playersInList {
+  padding: 0.5em;
+}
+
+.highlight {
+  border: thin solid white;
+  background: linear-gradient(to right, #04002A, #005254);
 }
 
 .announcer {

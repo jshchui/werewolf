@@ -5,18 +5,39 @@ import '../index.js';
 
 class PlayerList extends Component {
 
-  renderPlayerList = (players) => {
+  renderPlayerList = (players, thisPlayer) => {
     // debugger
     return Object.keys(players).map((playerID, index) => {
-      // this.props.getPlayerVotedId(playerID);
-      return (
-        <div key={index}>
-        {/* <p id='hey'>{playerID}</p> */}
-        <li>{players[playerID].alias}</li>
-        {/* <button onClick={this.props.getPlayerVotedId}>Vote</button> */}
-        </div>
-        // players[playerID].username...
-      )
+      if(players[playerID].isAlive != false) {
+        if(playerID == thisPlayer) {
+          return (
+            <div className="playersInList highlight" key={index}>
+              <li>{players[playerID].alias}</li>
+            </div>
+          )
+        } else {
+          return (
+            <div className="playersInList" key={index}>
+              {/* <p id='hey'>{playerID}</p> */}
+              <li>{players[playerID].alias}</li>
+              {/* <button onClick={this.props.getPlayerVotedId}>Vote</button> */}
+            </div>
+            // players[playerID].username...
+          )
+        }
+      }
+    })
+  }
+
+  renderDeadPlayerList = (players, thisPlayer) => {
+    return Object.keys(players).map((playerID, index) => {
+      if(players[playerID].isAlive == false) {
+        return (
+          <div className="playersInList highlight" key={index}>
+            <li>{players[playerID].alias}</li>
+          </div>
+        )
+      }
     })
   }
 
@@ -32,7 +53,12 @@ class PlayerList extends Component {
       <div id="alive-player-list">
         <h2>ALIVE</h2>
         <ul>
-          {this.renderPlayerList(this.props.players) }
+          {this.renderPlayerList(this.props.players, this.props.thisPlayer) }
+        </ul>
+
+        <h2>DEAD</h2>
+        <ul>
+          {this.renderDeadPlayerList(this.props.players, this.props.thisPlayer) }
         </ul>
       </div>
     )

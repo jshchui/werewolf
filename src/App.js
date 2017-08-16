@@ -83,6 +83,7 @@ class App extends Component {
             this.formShow('death-alert');
             this.formHide('seer-form-outer');
             this.formHide('voting-form-outer');
+            this.clearThisPlayerAction(presenceRef);
 
             //Set state inspected here for seer logic
             this.setState({
@@ -200,22 +201,24 @@ class App extends Component {
     });
   }
 
+  clearThisPlayerAction = (presenceRef) => {
+    presenceRef.child(this.state.thisplayerID).child('currentAction').set(null);
+    presenceRef.child(this.state.thisplayerID).child('selectedPerson').set('no-one');
+  }
+
   renderVotesOnPlayers = (players) => {
     // firebase.database().ref().child('presence').once('value', (snap) => {
       return Object.keys(players).map((playerID, index) => {
           // const playerAction = snap.val();
           // console.log(playerAction[playerID].currentAction);
           // if(playerAction == 'confirmed-vote') {
-
-
-          console.log(players[playerID].currentAction)
           if(players[playerID].currentAction == 'confirmed-vote')
             return (
-              <h3>{this.state.players[playerID].alias} has LOCKED IN FOR {players[playerID].selectedPerson || 'no-one'}</h3>
+              <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has Locked In <span className="confirmed">{players[playerID].selectedPerson}</span></h3>
             )
           else {
             return (
-              <h3>{this.state.players[playerID].alias} has selected {players[playerID].selectedPerson || 'no-one'}</h3>
+              <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has selected <span className="selecting">{players[playerID].selectedPerson || 'no-one'}</span></h3>
             )
           }
 
@@ -512,8 +515,7 @@ class App extends Component {
         </div>
 
         <div className="show" id="player-list">
-          <PlayerList players={this.state.players} setVote={this.votedPlayerID} />
-
+          <PlayerList players={this.state.players} setVote={this.votedPlayerID} thisPlayer={this.state.thisplayerID}/>
           <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
 
           <div className="ready-role">
