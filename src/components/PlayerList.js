@@ -6,7 +6,7 @@ import '../index.js';
 class PlayerList extends Component {
 
   renderPlayerList = (players, thisPlayer) => {
-    // debugger
+    // If the player is you, highlight yourself
     return Object.keys(players).map((playerID, index) => {
       if(players[playerID].isAlive != false) {
         if(playerID == thisPlayer) {
@@ -32,11 +32,19 @@ class PlayerList extends Component {
   renderDeadPlayerList = (players, thisPlayer) => {
     return Object.keys(players).map((playerID, index) => {
       if(players[playerID].isAlive == false) {
-        return (
-          <div className="playersInList highlight" key={index}>
-            <li>{players[playerID].alias}</li>
-          </div>
-        )
+        if(playerID == thisPlayer) {
+          return (
+            <div className="playersInList highlight" key={index}>
+              <li>{players[playerID].alias}</li>
+            </div>
+          )
+        } else {
+          return (
+            <div className="playersInList" key={index}>
+              <li>{players[playerID].alias}</li>
+            </div>
+          )
+        }
       }
     })
   }
