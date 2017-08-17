@@ -16,14 +16,22 @@ class PlayerList extends Component {
             </div>
           )
         } else {
-          return (
-            <div className="playersInList" key={index}>
-              {/* <p id='hey'>{playerID}</p> */}
-              <li>{players[playerID].alias}</li>
-              {/* <button onClick={this.props.getPlayerVotedId}>Vote</button> */}
-            </div>
-            // players[playerID].username...
-          )
+          if(players[playerID].ready) {
+            return (
+              <div className="playersInList ready-highlight" key={index}>
+                <li>{players[playerID].alias}</li>
+              </div>
+            )
+          } else {
+            return (
+              <div className="playersInList" key={index}>
+                {/* <p id='hey'>{playerID}</p> */}
+                <li>{players[playerID].alias}</li>
+                {/* <button onClick={this.props.getPlayerVotedId}>Vote</button> */}
+              </div>
+              // players[playerID].username...
+            )
+          }
         }
       }
     })

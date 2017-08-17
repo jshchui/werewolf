@@ -130,10 +130,10 @@ exports.gameStateListener = functions.database.ref('game-settings').onUpdate((ev
         case "Werewolf-Phase":
           checkWinCondition(playerSettingsFirebaseObject, gameSettingsFirebaseObject)
           setIsAliveFalse(playerSettingsFirebaseObject);
-          countDownInterval(gameSettingsFirebaseObject, 'Seer-Phase', 10)
+          countDownInterval(gameSettingsFirebaseObject, 'Seer-Phase', 5)
           break;
         case "Seer-Phase":
-          countDownInterval(gameSettingsFirebaseObject, 'Night-Death-Phase', 7)
+          countDownInterval(gameSettingsFirebaseObject, 'Night-Death-Phase', 5)
           break;
         case "Night-Death-Phase":
           killMostVotedPlayer(playerSettingsFirebaseObject)
@@ -141,10 +141,10 @@ exports.gameStateListener = functions.database.ref('game-settings').onUpdate((ev
           break;
         case "Day-Phase":
           setIsAliveFalse(playerSettingsFirebaseObject);
-          countDownInterval(gameSettingsFirebaseObject, 'Lynch-Phase', 15)
+          countDownInterval(gameSettingsFirebaseObject, 'Lynch-Phase', 5)
           break;
         case "Lynch-Phase":
-          countDownInterval(gameSettingsFirebaseObject, 'Day-Death-Phase', 10)
+          countDownInterval(gameSettingsFirebaseObject, 'Day-Death-Phase', 5)
           break;
         case "Day-Death-Phase":
           killMostVotedPlayer(playerSettingsFirebaseObject)
@@ -292,7 +292,7 @@ const checkWinCondition = (playerSettingsFirebaseObject, gameSettingsFirebaseObj
     let werewolves = 0;
     let villagers = 0;
     Object.keys(players).map((playerID) => {
-      if(players[playerID].isAlive) {
+      if(players[playerID].isAlive === true) {
         if(players[playerID].role == 'Werewolf') {
           werewolves += 1;
         } else {
@@ -303,10 +303,8 @@ const checkWinCondition = (playerSettingsFirebaseObject, gameSettingsFirebaseObj
 
     if(werewolves >= villagers) {
       gameSettingsFirebaseObject.child('gameState').set('werewolves-win');
-
     } else if (werewolves <= 0) {
       gameSettingsFirebaseObject.child('gameState').set('villagers-win');
-
     } else {
       console.log('The game continues')
     }

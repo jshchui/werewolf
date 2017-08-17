@@ -167,17 +167,18 @@ class App extends Component {
       }
     })
 
+    setTimeout(() => {
+      hiddenOptions.forEach(player => player.style.display = 'inline-block')
+    }, 3000)
+
     firebase.database().ref().child('presence').child(playerID).child('votes')
     .once('value', snap => {
       let selectedPlayerCurrentVotes = snap.val();
       return firebase.database().ref().child('presence').child(playerID).child('votes').set(selectedPlayerCurrentVotes + 1);
     })
 
-    firebase.database().ref().child('presence').child(playerID).child('currentAction').set('confirmed-vote');
-
-    setTimeout(() => {
-      hiddenOptions.forEach(player => player.style.display = 'inline-block')
-    }, 3000)
+    // This shows that the player comfirmed a vote
+    firebase.database().ref().child('presence').child(this.state.thisplayerID).child('currentAction').set('confirmed-vote');
   }
 
   inspect = (event) => {
@@ -207,32 +208,18 @@ class App extends Component {
     presenceRef.child(this.state.thisplayerID).child('selectedPerson').set('no-one');
   }
 
-  renderVotesOnPlayers = (players) => {
-    // firebase.database().ref().child('presence').once('value', (snap) => {
-      return Object.keys(players).map((playerID, index) => {
-          // const playerAction = snap.val();
-          // console.log(playerAction[playerID].currentAction);
-          // if(playerAction == 'confirmed-vote') {
-          if(players[playerID].currentAction == 'confirmed-vote')
-            return (
-              <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has Locked In <span className="confirmed">{players[playerID].selectedPerson}</span></h3>
-            )
-          else {
-            return (
-              <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has selected <span className="selecting">{players[playerID].selectedPerson || 'no-one'}</span></h3>
-            )
-          }
-
-
-            // console.log('confiredvote running')
-          // } else {
-            // console.log('elseisrunning')
-            // return (
-              // <h3>{this.state.players[playerID].alias} has selected {players[playerID].selectedPerson || 'no-one'}</h3>
-              // <h3>{this.state.players[playerID].alias}: {this.state.players[playerID].votes}</h3>
-            // )
-          // }
-      })
+  renderVotesOnPlayers = (players, phase) => {
+    return Object.keys(players).map((playerID, index) => {
+      if(players[playerID].currentAction == 'confirmed-vote')
+        return (
+          <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has Locked In <span className="confirmed">{players[playerID].selectedPerson}</span></h3>
+        )
+      else {
+        return (
+          <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has selected <span className="selecting">{players[playerID].selectedPerson || 'no-one'}</span></h3>
+        )
+      }
+    })
   }
 
   renderVotingPlayers = (players) => {
@@ -265,8 +252,8 @@ class App extends Component {
   }
 
   playerSelected = (thisplayerId, selectedPlayerId) => {
-    console.log(`${thisplayerId.alias} selected ${selectedPlayerId.alias}`);
-    console.log(thisplayerId)
+    // console.log(`${thisplayerId.alias} selected ${selectedPlayerId.alias}`);
+    // console.log(thisplayerId)
     firebase.database().ref().child('presence').child(this.state.thisplayerID).child('selectedPerson').set(selectedPlayerId.alias);
   }
 
@@ -452,7 +439,7 @@ class App extends Component {
       <div className="App">
         <div id="overlapping-components">
           <div id="voting-form-outer">
-            {this.renderVotesOnPlayers(this.state.players)}
+            {this.renderVotesOnPlayers(this.state.players, 'werewolf-phase')}
             <form id="votingform" onSubmit={this.setVote}>
               <h2>Choose a person to get a claw in face</h2>
               {this.renderVotingPlayers(this.state.players)}
@@ -476,10 +463,12 @@ class App extends Component {
           </div>
 
           <div id="lynch-form-outer">
-            {this.renderVotesOnPlayers(this.state.players)}
+            {this.renderVotesOnPlayers(this.state.players, 'lynch-phase')}
             <form id="lynchform" onSubmit={this.setVote}>
               <h2>Who should get hanged?</h2>
+              <div>
                 {this.renderVotingPlayers(this.state.players)}
+              </div>
               <input id='lynchButton' type="submit" value="Submit" />
             </form>
           </div>
@@ -511,10 +500,10 @@ class App extends Component {
 
         <div className="show" id="player-list">
           <PlayerList players={this.state.players} setVote={this.votedPlayerID} thisPlayer={this.state.thisplayerID}/>
-          {/* <button onClick={this.voteFormToggle}>Voting Form Toggle</button> */}
+          <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
 
           <div className="ready-role">
-            <h2>Your role: {this.state.thisplayerRole}</h2>
+            <h2>Role: {this.state.thisplayerRole}</h2>
             <Role onReadyUp={this.onReadyUp} />
           </div>
         </div>

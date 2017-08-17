@@ -20,6 +20,7 @@ h2 {
   color: white;
   text-transform: uppercase;
   font-weight: lighter;
+  margin: 0.25em;
 }
 
 h3 {
@@ -49,6 +50,7 @@ p {
 }
 
 #inspectButton, #killButton, #lynchButton {
+  margin: 0.5em auto;
   margin-top: 0.5em;
   padding: 1em 2em;
   border: none;
@@ -74,8 +76,10 @@ p {
 }
 
 #lynchform {
+  display: flex;
+  flex-direction: column;
   padding: 2em;
-  width: 100%;
+  width: 75%;
   box-sizing: border-box;
 }
 
@@ -85,14 +89,20 @@ p {
   background-color: black;
 }
 
+.vote_selections {
+  width: 50%;
+  float: left;
+}
+
 label {
   color: white;
   border: solid thin white;
   padding: 1em 2em;
-  width: 50%;
+  width: 85%;
   display: inline-block;
   margin: 0.5em 0;
   transition: 0.4s all;
+  box-sizing: border-box
 }
 
 label:hover {
@@ -163,6 +173,10 @@ input[type="radio"] {
 .highlight {
   border: thin solid white;
   background: linear-gradient(to right, #04002A, #005254);
+}
+
+.ready-highlight {
+  background-color: green;
 }
 
 .announcer {
@@ -365,12 +379,12 @@ input[type="radio"] {
     max-width: 100%;
   }
 
-  .message-form {
+  #lynchform {
     width: 100%;
   }
 
-  h1 {
-    font-size: 1.4em;
+  .message-form {
+    width: 100%;
   }
 
   h2 {
@@ -378,7 +392,9 @@ input[type="radio"] {
   }
 
   h3 {
-    font-size:1.2em;
+    font-size:1.1em;
+    margin: 0.25em;
+
   }
 
   #alive-player-list > ul {
