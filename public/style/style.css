@@ -49,7 +49,7 @@ p {
   transition: 0.3s all;
 }
 
-#inspectButton, #killButton, #lynchButton {
+#voteButton {
   margin: 0.5em auto;
   margin-top: 0.5em;
   padding: 1em 2em;

@@ -21,7 +21,8 @@ class App extends Component {
       thisplayerRole: null,
       countDown: null,
       selectedOption: null,
-      inspected: null
+      inspected: null,
+      amIAlive: null
       // menuVisible: false
     };
   }
@@ -50,9 +51,7 @@ class App extends Component {
 
 
     presenceRef.on('value', snap => {
-
       this.setState({
-        speed: snap.val(),
         alias: alias
       });
     });
@@ -62,6 +61,13 @@ class App extends Component {
       let role = snap.val()
       this.setState({
         thisplayerRole: role
+      })
+    })
+
+    presenceRef.child(id).child('isAlive').on('value', snap => {
+      let isAlive = snap.val()
+      this.setState({
+        amIAlive: isAlive
       })
     })
 
@@ -436,6 +442,14 @@ class App extends Component {
       InspectedPlayer = <p>That person is a {this.state.inspected}</p>
     }
 
+    let votingPlayers
+
+    if(this.state.amIAlive == true) {
+      votingPlayers = this.renderVotingPlayers(this.state.players)
+    } else {
+      votingPlayers = <p>You are dead and cannot vote</p>
+    }
+
     return (
       <div className="App">
         <div id="overlapping-components">
@@ -443,7 +457,8 @@ class App extends Component {
             {this.renderVotesOnPlayers(this.state.players, 'werewolf-phase')}
             <form id="votingform" onSubmit={this.setVote}>
               <h2>Choose a person to get a claw in face</h2>
-              {this.renderVotingPlayers(this.state.players)}
+              {votingPlayers}
+              {/* {this.renderVotingPlayers(this.state.players)} */}
               <input id='killButton' type="submit" value="Submit" />
             </form>
           </div>
@@ -451,7 +466,8 @@ class App extends Component {
           <div id="seer-form-outer">
             <form id="seerform" onSubmit={this.inspect}>
               <h2>Choose a player to inspect</h2>
-              {this.renderVotingPlayers(this.state.players)}
+              {votingPlayers}
+              {/* {this.renderVotingPlayers(this.state.players)} */}
               <input id='inspectButton' type="submit" value="Submit" />
               {InspectedPlayer}
             </form>
@@ -468,7 +484,8 @@ class App extends Component {
             <form id="lynchform" onSubmit={this.setVote}>
               <h2>Who should get hanged?</h2>
               <div>
-                {this.renderVotingPlayers(this.state.players)}
+                {votingPlayers}
+                {/* {this.renderVotingPlayers(this.state.players)} */}
               </div>
               <input id='lynchButton' type="submit" value="Submit" />
             </form>
