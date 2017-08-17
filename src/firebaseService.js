@@ -43,8 +43,12 @@ export default function(db) {
     },
 
     //checks if all users are ready
-    setReady(thisplayerID) {
-      return db.child('presence').child(thisplayerID).child('ready').set(true);
+    setReady(thisplayerID, isReady) {
+      if(isReady == true){
+        return db.child('presence').child(thisplayerID).child('ready').set(true);
+      } else {
+        return db.child('presence').child(thisplayerID).child('ready').set(false);
+      }
     },
     // sets the player role
     setPlayerRole(thisplayerID, Role) {

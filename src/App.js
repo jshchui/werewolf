@@ -142,8 +142,9 @@ class App extends Component {
 
 
 
-  onReadyUp = () => {
-    return this.props.firebaseService.setReady(this.state.thisplayerID);
+  onReadyUp = (players) => {
+    let ready = !players[this.state.thisplayerID].ready
+    return this.props.firebaseService.setReady(this.state.thisplayerID, ready);
   }
 
   //this is responsible for voting players for DEATH
@@ -504,7 +505,7 @@ class App extends Component {
 
           <div className="ready-role">
             <h2>Role: {this.state.thisplayerRole}</h2>
-            <Role onReadyUp={this.onReadyUp} />
+            <Role onReadyUp={()=>this.onReadyUp(this.state.players)} />
           </div>
         </div>
 
