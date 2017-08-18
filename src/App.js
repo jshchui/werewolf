@@ -443,11 +443,20 @@ class App extends Component {
     }
 
     let votingPlayers
+    let killBut
+    let inspectBut
+    let lynchBut
 
     if(this.state.amIAlive == true) {
       votingPlayers = this.renderVotingPlayers(this.state.players)
+      killBut = <input id='killButton' type="submit" value="Submit" />
+      inspectBut = <input id='inspectButton' type="submit" value="Submit" />
+      lynchBut = <input id='lynchButton' type="submit" value="Submit" />
     } else {
       votingPlayers = <p>You are dead and cannot vote</p>
+      killBut = <input style={{display: 'none'}} id='killButton' type="submit" value="Submit" />
+      inspectBut = <input style={{display: 'none'}} id='inspectButton' type="submit" value="Submit" />
+      lynchBut = <input style={{display: 'none'}} id='lynchButton' type="submit" value="Submit" />
     }
 
     return (
@@ -458,8 +467,8 @@ class App extends Component {
             <form id="votingform" onSubmit={this.setVote}>
               <h2>Choose a person to get a claw in face</h2>
               {votingPlayers}
-              {/* {this.renderVotingPlayers(this.state.players)} */}
-              <input id='killButton' type="submit" value="Submit" />
+              {/* <input id='killButton' type="submit" value="Submit" /> */}
+              {killBut}
             </form>
           </div>
 
@@ -467,8 +476,8 @@ class App extends Component {
             <form id="seerform" onSubmit={this.inspect}>
               <h2>Choose a player to inspect</h2>
               {votingPlayers}
-              {/* {this.renderVotingPlayers(this.state.players)} */}
-              <input id='inspectButton' type="submit" value="Submit" />
+              {/* <input id='inspectButton' type="submit" value="Submit" /> */}
+              {inspectBut}
               {InspectedPlayer}
             </form>
           </div>
@@ -485,9 +494,9 @@ class App extends Component {
               <h2>Who should get hanged?</h2>
               <div>
                 {votingPlayers}
-                {/* {this.renderVotingPlayers(this.state.players)} */}
               </div>
-              <input id='lynchButton' type="submit" value="Submit" />
+              {/* <input id='lynchButton' type="submit" value="Submit" /> */}
+              {lynchBut}
             </form>
           </div>
 
