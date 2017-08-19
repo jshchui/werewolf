@@ -217,15 +217,44 @@ class App extends Component {
 
   renderVotesOnPlayers = (players, phase) => {
     return Object.keys(players).map((playerID, index) => {
-      if(players[playerID].currentAction == 'confirmed-vote')
-        return (
-          <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has Locked In <span className="confirmed">{players[playerID].selectedPerson}</span></h3>
-        )
-      else {
-        return (
-          <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has selected <span className="selecting">{players[playerID].selectedPerson || 'no-one'}</span></h3>
-        )
+      if(phase == 'werewolf') {
+        if(players[playerID].role == 'Werewolf') {
+          if(players[playerID].isAlive == true) {
+            if(players[playerID].currentAction == 'confirmed-vote')
+            return (
+              <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has Locked In <span className="confirmed">{players[playerID].selectedPerson}</span></h3>
+            )
+            else {
+              return (
+                <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has selected <span className="selecting">{players[playerID].selectedPerson || 'no-one'}</span></h3>
+              )
+            }
+          }
+        }
+      } else {
+        if(players[playerID].isAlive == true) {
+          if(players[playerID].currentAction == 'confirmed-vote')
+          return (
+            <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has Locked In <span className="confirmed">{players[playerID].selectedPerson}</span></h3>
+          )
+          else {
+            return (
+              <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has selected <span className="selecting">{players[playerID].selectedPerson || 'no-one'}</span></h3>
+            )
+          }
+        }
       }
+      // if(players[playerID].isAlive == true) {
+      //   if(players[playerID].currentAction == 'confirmed-vote')
+      //   return (
+      //     <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has Locked In <span className="confirmed">{players[playerID].selectedPerson}</span></h3>
+      //   )
+      //   else {
+      //     return (
+      //       <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has selected <span className="selecting">{players[playerID].selectedPerson || 'no-one'}</span></h3>
+      //     )
+      //   }
+      // }
     })
   }
 
@@ -463,7 +492,7 @@ class App extends Component {
       <div className="App">
         <div id="overlapping-components">
           <div id="voting-form-outer">
-            {this.renderVotesOnPlayers(this.state.players, 'werewolf-phase')}
+            {this.renderVotesOnPlayers(this.state.players, 'werewolf')}
             <form id="votingform" onSubmit={this.setVote}>
               <h2>Choose a person to get a claw in face</h2>
               {votingPlayers}
@@ -489,7 +518,7 @@ class App extends Component {
           </div>
 
           <div id="lynch-form-outer">
-            {this.renderVotesOnPlayers(this.state.players, 'lynch-phase')}
+            {this.renderVotesOnPlayers(this.state.players, 'lynch')}
             <form id="lynchform" onSubmit={this.setVote}>
               <h2>Who should get hanged?</h2>
               <div>
