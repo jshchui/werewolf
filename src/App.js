@@ -29,18 +29,21 @@ class App extends Component {
       nightTime: true,
     };
     console.log('constructor');
+
+    this.handleChange = this.handleChange.bind(this);
+    this.setName = this.setName.bind(this);
   }
 
   componentWillMount() {
     console.log('componentWillMount');
 
-    this.setName();
+    // this.setName();
   }
 
-  componentDidMount() {
+  setupGame() {
     const id = Math.floor(Date.now()).toString();
     // const alias = prompt('What is your alias') || `Person ${id.toString().slice(-2)}`;
-    const alias = prompt('What is your alias') || `Person ${id.toString().slice(-2)}`;
+    const alias = this.state.alias;
 
     const rootRef = firebase.database().ref();
     const presenceRef = rootRef.child('presence');
@@ -56,9 +59,7 @@ class App extends Component {
     //this.props from index.js
     this.props.firebaseService.setPlayerAlias(id, alias);
     this.props.firebaseService.setOnlineAndWatchPresence(id, alias);
-    this.props.firebaseService.countOnlineUser((count) => {
-
-    });
+    this.props.firebaseService.countOnlineUser((count) => {});
 
 
 
@@ -152,6 +153,10 @@ class App extends Component {
         thisplayerID: id
       })
     });
+
+  }
+
+  componentDidMount() {
   }// end of component did mount
 
   formShow = (form) => {
@@ -473,14 +478,17 @@ class App extends Component {
   //   <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
   // </div>
 
-  setName = (event) => {
-    // event.preventDefault();
-    // this.setState({
-    //   name: 'Benjamen'
-    // });
+  setName(event) {
+    event.preventDefault();
+    document.getElementById('name-form').style.display = 'none';
+    console.log('alias', this.state.alias);
+    this.setupGame()
   }
 
-
+  handleChange(event) {
+    console.log('handlingChange', event.target.value)
+    this.setState({alias: event.target.value})
+  }
 
   render() {
     // let Timer = null; //Timer is for rendering out the timer below
@@ -523,8 +531,14 @@ class App extends Component {
           <div id="name-form">
             <form id="name" onSubmit={this.setName}>
               <h2>Name</h2>
-              <input type="text" name="name" />
+              <input type="text"
+                name="name"
+                onChange={this.handleChange}
+                value={this.state.alias}
+              />
+              <input type="submit" value="Submit" />
             </form>
+
           </div>
 
           <div id="voting-form-outer">
