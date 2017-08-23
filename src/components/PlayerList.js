@@ -8,13 +8,21 @@ class PlayerList extends Component {
   renderPlayerList = (players, thisPlayer) => {
     // If the player is you, highlight yourself
     return Object.keys(players).map((playerID, index) => {
-      if(players[playerID].isAlive != false) {
-        if(playerID == thisPlayer) {
-          return (
-            <div className="playersInList highlight" key={index}>
-              <li>{players[playerID].alias}</li>
-            </div>
-          )
+      if(players[playerID].isAlive !== false) {
+        if(playerID === thisPlayer) {
+          if(players[thisPlayer].ready) {
+            return (
+              <div className="playersInList highlight ready-highlight" key={index}>
+                <li>{players[playerID].alias}</li>
+              </div>
+            )
+          } else {
+            return (
+              <div className="playersInList highlight" key={index}>
+                <li>{players[playerID].alias}</li>
+              </div>
+            )
+          }
         } else {
           if(players[playerID].ready) {
             return (
@@ -37,6 +45,7 @@ class PlayerList extends Component {
     })
   }
 
+  //if player is dead, render here instead
   renderDeadPlayerList = (players, thisPlayer) => {
     return Object.keys(players).map((playerID, index) => {
       if(players[playerID].isAlive == false) {

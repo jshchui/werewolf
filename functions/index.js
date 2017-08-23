@@ -106,7 +106,7 @@ exports.startGame = functions.database.ref('presence').onUpdate((event) => {
         return event.data.ref.parent.child('game-settings').set({
           // started: allReady
           gameState: "all-ready",
-          currentCounter: null
+          currentCounter: 0
         });
       } else {
         return null;
@@ -193,7 +193,7 @@ const countDownInterval = (gameSettings, nextState, countDownTime) => {
           if(currentGameState != "game-ended" && currentGameState != "werewolves-win" && currentGameState != "villagers-win") {
             gameSettings.set({
               gameState: nextState,
-              currentCounter: null
+              currentCounter: 0
             })
           }
         })

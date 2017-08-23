@@ -7,6 +7,9 @@ import ChatRoom from './components/ChatRoom';
 import PlayerList from './components/PlayerList';
 import Role from './components/Role';
 
+import moon from './moon.png';
+import sun from './sun.png';
+
 
 class App extends Component {
   constructor() {
@@ -19,16 +22,24 @@ class App extends Component {
       gameStatus: 'unready',
       thisplayerID: null,
       thisplayerRole: null,
-      countDown: null,
+      countDown: 0,
       selectedOption: null,
       inspected: null,
-      amIAlive: null
-      // menuVisible: false
+      amIAlive: null,
+      nightTime: true,
     };
+    console.log('constructor');
+  }
+
+  componentWillMount() {
+    console.log('componentWillMount');
+
+    this.setName();
   }
 
   componentDidMount() {
     const id = Math.floor(Date.now()).toString();
+    // const alias = prompt('What is your alias') || `Person ${id.toString().slice(-2)}`;
     const alias = prompt('What is your alias') || `Person ${id.toString().slice(-2)}`;
 
     const rootRef = firebase.database().ref();
@@ -38,7 +49,7 @@ class App extends Component {
     // checks the cycle
     const gameSettingsRef = rootRef.child('game-settings');
     // gameStateRef.set(false);
-    gameSettingsRef.child('currentCounter').set('null');
+    gameSettingsRef.child('currentCounter').set('0');
 
     let lastGameState;
 
@@ -46,6 +57,7 @@ class App extends Component {
     this.props.firebaseService.setPlayerAlias(id, alias);
     this.props.firebaseService.setOnlineAndWatchPresence(id, alias);
     this.props.firebaseService.countOnlineUser((count) => {
+
     });
 
 
@@ -83,6 +95,7 @@ class App extends Component {
           const thisPlayer = snap.val()
           if(gameSettings.gameState == "Werewolf-Phase" && thisPlayer.role == 'Werewolf' && thisPlayer.isAlive) {
             this.formHide('death-alert');
+
             this.formShow('voting-form-outer');
           } else if (gameSettings.gameState == "Seer-Phase" && thisPlayer.role == 'Seer' && thisPlayer.isAlive) {
             this.formShow('seer-form-outer');
@@ -94,7 +107,8 @@ class App extends Component {
 
             //Set state inspected here for seer logic
             this.setState({
-              inspected: null
+              inspected: null,
+              nightTime: false
             })
             document.getElementById('killButton').disabled = false;
             document.getElementById('lynchButton').disabled = false;
@@ -109,6 +123,10 @@ class App extends Component {
 
             document.getElementById('killButton').disabled = false;
             document.getElementById('lynchButton').disabled = false;
+
+            this.setState({
+              nightTime: true
+            })
 
           } else if (gameSettings.gameState == "werewolves-win") {
             this.formShow('werewolves-win')
@@ -216,15 +234,15 @@ class App extends Component {
   }
 
   renderVotesOnPlayers = (players, phase) => {
-    return Object.keys(players).map((playerID, index) => {
+    return Object.keys(players).map((playerID) => {
       if(phase == 'werewolf') {
         if(players[playerID].role == 'Werewolf') {
           if(players[playerID].isAlive == true) {
-            if(players[playerID].currentAction == 'confirmed-vote')
-            return (
-              <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has Locked In <span className="confirmed">{players[playerID].selectedPerson}</span></h3>
-            )
-            else {
+            if(players[playerID].currentAction == 'confirmed-vote') {
+              return (
+                <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has Locked In <span className="confirmed">{players[playerID].selectedPerson}</span></h3>
+              )
+            } else {
               return (
                 <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has selected <span className="selecting">{players[playerID].selectedPerson || 'no-one'}</span></h3>
               )
@@ -244,17 +262,6 @@ class App extends Component {
           }
         }
       }
-      // if(players[playerID].isAlive == true) {
-      //   if(players[playerID].currentAction == 'confirmed-vote')
-      //   return (
-      //     <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has Locked In <span className="confirmed">{players[playerID].selectedPerson}</span></h3>
-      //   )
-      //   else {
-      //     return (
-      //       <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has selected <span className="selecting">{players[playerID].selectedPerson || 'no-one'}</span></h3>
-      //     )
-      //   }
-      // }
     })
   }
 
@@ -308,143 +315,149 @@ class App extends Component {
     })
   }
 
-  voteKillTest = () => {
-    let mostVotedPlayer;
-    let mostVotes = 0;
-    Object.keys(this.state.players).map((playerID) => {
-      if(this.state.players[playerID].votes > mostVotes) {
-        mostVotes = this.state.players[playerID].votes
-        mostVotedPlayer = playerID
-      }
-    })
-    firebase.database().ref().child('presence').child(mostVotedPlayer).child('isAlive').set(false);
-  }
-
   voteFormToggle = () => {
-    let formStatus = document.getElementById('lynch-form-outer');
-    if(formStatus.style.display === 'none') {
-      formStatus.style.display = 'flex';
-    } else {
-      formStatus.style.display = 'none';
-    }
+    // let formStatus = document.getElementById('lynch-form-outer');
+    // if(formStatus.style.display === 'none') {
+    //   formStatus.style.display = 'flex';
+    // } else {
+    //   formStatus.style.display = 'none';
+    // }
+
+    document.getElementById('lynch-form-outer').classList.toggle("appear");
+
+
+    // document.getElementById("player-list").classList.toggle("show");
+
   }
 
-  killSwitch = () => {
-    firebase.database().ref().child('game-settings').child('gameState').set('game-ended');
-  }
+  // voteKillTest = () => {
+  //   let mostVotedPlayer;
+  //   let mostVotes = 0;
+  //   Object.keys(this.state.players).map((playerID) => {
+  //     if(this.state.players[playerID].votes > mostVotes) {
+  //       mostVotes = this.state.players[playerID].votes
+  //       mostVotedPlayer = playerID
+  //     }
+  //   })
+  //   firebase.database().ref().child('presence').child(mostVotedPlayer).child('isAlive').set(false);
+  // }
 
-  assignRole = () => {
-    const playerSettingsFirebaseObject = firebase.database().ref().child('presence')
-    const Roster = []
+  // killSwitch = () => {
+  //   firebase.database().ref().child('game-settings').child('gameState').set('game-ended');
+  // }
 
-    playerSettingsFirebaseObject.once('value', snap => {
-      let players = snap.val()
-      let numPlayers = Object.keys(players).length;
+  // assignRole = () => {
+  //   const playerSettingsFirebaseObject = firebase.database().ref().child('presence')
+  //   const Roster = []
+  //
+  //   playerSettingsFirebaseObject.once('value', snap => {
+  //     let players = snap.val()
+  //     let numPlayers = Object.keys(players).length;
+  //
+  //     let werewolves, seer, villagers = 0;
+  //     if(numPlayers > 5) {
+  //       werewolves = Math.floor(Math.sqrt(numPlayers));
+  //       seer = 1;
+  //       villagers = numPlayers - (werewolves + seer);
+  //     } else if(numPlayers == 5) {
+  //       werewolves = 1;
+  //       seer = 1;
+  //       villagers = 3;
+  //     } else if(numPlayers == 4) {
+  //       werewolves = 1
+  //       seer = 1;
+  //       villagers = 2;
+  //     } else if(numPlayers == 3) {
+  //       werewolves = 1;
+  //       seer = 1
+  //       villagers = 1;
+  //     } else if(numPlayers == 2) {
+  //       seer = 1;
+  //       werewolves = 1;
+  //     } else if(numPlayers == 1) {
+  //       seer = 1;
+  //     }
+  //
+  //     //Pushing the roles in Roster
+  //     for(let i=0; i<werewolves; i++) {
+  //       Roster.push('Werewolf')
+  //     }
+  //
+  //     for(let i=0; i<seer; i++) {
+  //       Roster.push('Seer')
+  //     }
+  //
+  //     for(let i=0; i<villagers; i++) {
+  //       Roster.push('Villager')
+  //     }
+  //
+  //     Object.keys(players).map((playerID) => {
+  //       let randomNumber = Math.floor(Math.random() * Roster.length)
+  //       let selectFromRoster = Roster[randomNumber]
+  //       Roster.splice(randomNumber, 1);
+  //       playerSettingsFirebaseObject.child(playerID).child('role').set(selectFromRoster);
+  //     })
+  //   })
+  // }
 
-      let werewolves, seer, villagers = 0;
-      if(numPlayers > 5) {
-        werewolves = Math.floor(Math.sqrt(numPlayers));
-        seer = 1;
-        villagers = numPlayers - (werewolves + seer);
-      } else if(numPlayers == 5) {
-        werewolves = 1;
-        seer = 1;
-        villagers = 3;
-      } else if(numPlayers == 4) {
-        werewolves = 1
-        seer = 1;
-        villagers = 2;
-      } else if(numPlayers == 3) {
-        werewolves = 1;
-        seer = 1
-        villagers = 1;
-      } else if(numPlayers == 2) {
-        seer = 1;
-        werewolves = 1;
-      } else if(numPlayers == 1) {
-        seer = 1;
-      }
+  // voteKillTestWithoutState = () => {
+  //   const playerSettingsFirebaseObject = firebase.database().ref().child('presence')
+  //
+  //   let mostVotedPlayer;
+  //   let mostVotes = 0;
+  //   playerSettingsFirebaseObject.once('value', snap => {
+  //     let players = snap.val()
+  //     Object.keys(players).map((playerID) => {
+  //       if(players[playerID].votes > mostVotes) {
+  //         mostVotes = players[playerID].votes
+  //         mostVotedPlayer = playerID
+  //       }
+  //     })
+  //   })
+  //   playerSettingsFirebaseObject.child(mostVotedPlayer).child('isAlive').set(false);
+  // }
 
-      //Pushing the roles in Roster
-      for(let i=0; i<werewolves; i++) {
-        Roster.push('Werewolf')
-      }
+  // setIsAliveFalse = () => {
+  //   const playerSettingsFirebaseObject = firebase.database().ref().child('presence')
+  //
+  //   playerSettingsFirebaseObject.once('value', snap => {
+  //     let players = snap.val()
+  //     Object.keys(players).map((playerID) => {
+  //       if(players[playerID].isAlive == 'recentlyDead') {
+  //         playerSettingsFirebaseObject.child(playerID).child('isAlive').set(false);
+  //       }
+  //     })
+  //   })
+  // }
 
-      for(let i=0; i<seer; i++) {
-        Roster.push('Seer')
-      }
-
-      for(let i=0; i<villagers; i++) {
-        Roster.push('Villager')
-      }
-
-      Object.keys(players).map((playerID) => {
-        let randomNumber = Math.floor(Math.random() * Roster.length)
-        let selectFromRoster = Roster[randomNumber]
-        Roster.splice(randomNumber, 1);
-        playerSettingsFirebaseObject.child(playerID).child('role').set(selectFromRoster);
-      })
-    })
-  }
-
-  voteKillTestWithoutState = () => {
-    const playerSettingsFirebaseObject = firebase.database().ref().child('presence')
-
-    let mostVotedPlayer;
-    let mostVotes = 0;
-    playerSettingsFirebaseObject.once('value', snap => {
-      let players = snap.val()
-      Object.keys(players).map((playerID) => {
-        if(players[playerID].votes > mostVotes) {
-          mostVotes = players[playerID].votes
-          mostVotedPlayer = playerID
-        }
-      })
-    })
-    playerSettingsFirebaseObject.child(mostVotedPlayer).child('isAlive').set(false);
-  }
-
-  setIsAliveFalse = () => {
-    const playerSettingsFirebaseObject = firebase.database().ref().child('presence')
-
-    playerSettingsFirebaseObject.once('value', snap => {
-      let players = snap.val()
-      Object.keys(players).map((playerID) => {
-        if(players[playerID].isAlive == 'recentlyDead') {
-          playerSettingsFirebaseObject.child(playerID).child('isAlive').set(false);
-        }
-      })
-    })
-  }
-
-  checkWinCondition = () => {
-    const playerSettingsFirebaseObject = firebase.database().ref().child('presence')
-    playerSettingsFirebaseObject.once('value', snap => {
-      let players = snap.val()
-
-      let werewolves = 0;
-      let villagers = 0;
-      Object.keys(players).map((playerID) => {
-        if(players[playerID].isAlive) {
-          if(players[playerID].role == 'Werewolf') {
-            werewolves += 1;
-          } else {
-            villagers += 1;
-          }
-        }
-      })
-
-      if(werewolves >= villagers) {
-        firebase.database().ref().child('game-settings').child('gameState').set('werewolves-win');
-
-      } else if (werewolves <= 0) {
-        firebase.database().ref().child('game-settings').child('gameState').set('villagers-win');
-
-      } else {
-        console.log('The game continues')
-      }
-    })
-  }
+  // checkWinCondition = () => {
+  //   const playerSettingsFirebaseObject = firebase.database().ref().child('presence')
+  //   playerSettingsFirebaseObject.once('value', snap => {
+  //     let players = snap.val()
+  //
+  //     let werewolves = 0;
+  //     let villagers = 0;
+  //     Object.keys(players).map((playerID) => {
+  //       if(players[playerID].isAlive) {
+  //         if(players[playerID].role == 'Werewolf') {
+  //           werewolves += 1;
+  //         } else {
+  //           villagers += 1;
+  //         }
+  //       }
+  //     })
+  //
+  //     if(werewolves >= villagers) {
+  //       firebase.database().ref().child('game-settings').child('gameState').set('werewolves-win');
+  //
+  //     } else if (werewolves <= 0) {
+  //       firebase.database().ref().child('game-settings').child('gameState').set('villagers-win');
+  //
+  //     } else {
+  //       console.log('The game continues')
+  //     }
+  //   })
+  // }
 
   toggleNav = () => {
     document.getElementById("player-list").classList.toggle("show");
@@ -459,6 +472,13 @@ class App extends Component {
   //   <button onClick={this.voteKillTest}>Kill Test</button>
   //   <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
   // </div>
+
+  setName = (event) => {
+    // event.preventDefault();
+    // this.setState({
+    //   name: 'Benjamen'
+    // });
+  }
 
 
 
@@ -488,9 +508,25 @@ class App extends Component {
       lynchBut = <input style={{display: 'none'}} id='lynchButton' type="submit" value="Submit" />
     }
 
+    let sunOrMoon;
+
+    if(this.state.nightTime === true) {
+      sunOrMoon = <img className='sun-moon' src={moon} />
+    } else if(this.state.nightTime === false ) {
+      sunOrMoon = <img className='sun-moon' src={sun} />
+    }
+
     return (
       <div className="App">
         <div id="overlapping-components">
+
+          <div id="name-form">
+            <form id="name" onSubmit={this.setName}>
+              <h2>Name</h2>
+              <input type="text" name="name" />
+            </form>
+          </div>
+
           <div id="voting-form-outer">
             {this.renderVotesOnPlayers(this.state.players, 'werewolf')}
             <form id="votingform" onSubmit={this.setVote}>
@@ -542,30 +578,38 @@ class App extends Component {
           </div>
         </div>
 
-        <div className="announcer">
 
-          <h1>{this.state.gameStatus} - </h1>
-          <h1>&nbsp;{this.state.countDown}</h1>
-          <button className="hamburger" onClick={this.toggleNav}>
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
+        <div className="announcer" onClick={this.toggleNav}>
 
+
+          {/* <img className='sun-moon' src={moon} /> */}
+          {sunOrMoon}
+
+          <span id='timer'>{this.state.countDown}</span>
+          <h2>{this.state.gameStatus}</h2>
         </div>
-
         <div className="show" id="player-list">
+          {/* <h1>{this.state.gameStatus} - </h1>
+          <h1>&nbsp;{this.state.countDown}</h1> */}
+
           <PlayerList players={this.state.players} setVote={this.votedPlayerID} thisPlayer={this.state.thisplayerID}/>
-          <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
+          {/* <button onClick={this.voteFormToggle}>Voting Form Toggle</button> */}
 
           <div className="ready-role">
-            <h2>Role: {this.state.thisplayerRole}</h2>
+            <p>Role:</p>
+            <h3>{this.state.thisplayerRole}</h3>
             <Role onReadyUp={()=>this.onReadyUp(this.state.players)} />
           </div>
         </div>
 
 
+
         <ChatRoom player={this.state.alias} playerId={this.state.thisplayerID} />
+        <button className="hamburger" onClick={this.voteFormToggle}>
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
       </div>
     );
   }
