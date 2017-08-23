@@ -106,7 +106,7 @@ exports.startGame = functions.database.ref('presence').onUpdate((event) => {
         return event.data.ref.parent.child('game-settings').set({
           // started: allReady
           gameState: "all-ready",
-          currentCounter: 0
+          // currentCounter: 0
         });
       } else {
         return null;
@@ -181,19 +181,23 @@ exports.gameStateListener = functions.database.ref('game-settings').onUpdate((ev
 
 // kill switch check at end of countdown
 const countDownInterval = (gameSettings, nextState, countDownTime) => {
+  let endTime = Date.now() + (countDownTime * 1000)
   let currentCountdown = countDownTime
   let currentGameState = null;
+
+  gameSettings.child('endTime').set(endTime)
+
   const int = setInterval(() => {
       if(currentCountdown > 0) {
         currentCountdown -= 1;
-        gameSettings.child('currentCounter').set(currentCountdown)
+        // gameSettings.child('currentCounter').set(currentCountdown)
       } else {
         gameSettings.child('gameState').once('value', snap => {
           currentGameState = snap.val();
           if(currentGameState != "game-ended" && currentGameState != "werewolves-win" && currentGameState != "villagers-win") {
             gameSettings.set({
-              gameState: nextState,
-              currentCounter: 0
+              gameState: nextState
+              // currentCounter: 0
             })
           }
         })

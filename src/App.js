@@ -12,6 +12,7 @@ import sun from './sun.png';
 
 
 class App extends Component {
+
   constructor() {
     super(); //i deleted props
 
@@ -27,6 +28,8 @@ class App extends Component {
       inspected: null,
       amIAlive: null,
       nightTime: true,
+      endTime: null,
+      timerInterval: null
     };
     console.log('constructor');
 
@@ -87,9 +90,12 @@ class App extends Component {
     gameSettingsRef.on('value', snap => {
       const gameSettings = snap.val()
       this.setState({
-        countDown: gameSettings.currentCounter,
+        // countDown: gameSettings.currentCounter,
+        endTime: gameSettings.endTime,
         gameStatus: gameSettings.gameState
       })
+      console.log('countdownTimer ran');
+      this.countDownTimer();
 
       if(lastGameState != gameSettings.gameState) {
         presenceRef.child(id).once('value', snap => {
@@ -275,7 +281,6 @@ class App extends Component {
       if(this.state.players[playerID].isAlive == true) {
         return (
           <div className="vote_selections" key={index}>
-            {/* <p>Player ID: {playerID}</p> */}
               <input
                 type="radio"
                 name='voteFormDeath'
@@ -300,8 +305,6 @@ class App extends Component {
   }
 
   playerSelected = (thisplayerId, selectedPlayerId) => {
-    // console.log(`${thisplayerId.alias} selected ${selectedPlayerId.alias}`);
-    // console.log(thisplayerId)
     firebase.database().ref().child('presence').child(this.state.thisplayerID).child('selectedPerson').set(selectedPlayerId.alias);
   }
 
@@ -329,140 +332,9 @@ class App extends Component {
     // }
 
     document.getElementById('lynch-form-outer').classList.toggle("appear");
-
-
-    // document.getElementById("player-list").classList.toggle("show");
-
   }
 
-  // voteKillTest = () => {
-  //   let mostVotedPlayer;
-  //   let mostVotes = 0;
-  //   Object.keys(this.state.players).map((playerID) => {
-  //     if(this.state.players[playerID].votes > mostVotes) {
-  //       mostVotes = this.state.players[playerID].votes
-  //       mostVotedPlayer = playerID
-  //     }
-  //   })
-  //   firebase.database().ref().child('presence').child(mostVotedPlayer).child('isAlive').set(false);
-  // }
 
-  // killSwitch = () => {
-  //   firebase.database().ref().child('game-settings').child('gameState').set('game-ended');
-  // }
-
-  // assignRole = () => {
-  //   const playerSettingsFirebaseObject = firebase.database().ref().child('presence')
-  //   const Roster = []
-  //
-  //   playerSettingsFirebaseObject.once('value', snap => {
-  //     let players = snap.val()
-  //     let numPlayers = Object.keys(players).length;
-  //
-  //     let werewolves, seer, villagers = 0;
-  //     if(numPlayers > 5) {
-  //       werewolves = Math.floor(Math.sqrt(numPlayers));
-  //       seer = 1;
-  //       villagers = numPlayers - (werewolves + seer);
-  //     } else if(numPlayers == 5) {
-  //       werewolves = 1;
-  //       seer = 1;
-  //       villagers = 3;
-  //     } else if(numPlayers == 4) {
-  //       werewolves = 1
-  //       seer = 1;
-  //       villagers = 2;
-  //     } else if(numPlayers == 3) {
-  //       werewolves = 1;
-  //       seer = 1
-  //       villagers = 1;
-  //     } else if(numPlayers == 2) {
-  //       seer = 1;
-  //       werewolves = 1;
-  //     } else if(numPlayers == 1) {
-  //       seer = 1;
-  //     }
-  //
-  //     //Pushing the roles in Roster
-  //     for(let i=0; i<werewolves; i++) {
-  //       Roster.push('Werewolf')
-  //     }
-  //
-  //     for(let i=0; i<seer; i++) {
-  //       Roster.push('Seer')
-  //     }
-  //
-  //     for(let i=0; i<villagers; i++) {
-  //       Roster.push('Villager')
-  //     }
-  //
-  //     Object.keys(players).map((playerID) => {
-  //       let randomNumber = Math.floor(Math.random() * Roster.length)
-  //       let selectFromRoster = Roster[randomNumber]
-  //       Roster.splice(randomNumber, 1);
-  //       playerSettingsFirebaseObject.child(playerID).child('role').set(selectFromRoster);
-  //     })
-  //   })
-  // }
-
-  // voteKillTestWithoutState = () => {
-  //   const playerSettingsFirebaseObject = firebase.database().ref().child('presence')
-  //
-  //   let mostVotedPlayer;
-  //   let mostVotes = 0;
-  //   playerSettingsFirebaseObject.once('value', snap => {
-  //     let players = snap.val()
-  //     Object.keys(players).map((playerID) => {
-  //       if(players[playerID].votes > mostVotes) {
-  //         mostVotes = players[playerID].votes
-  //         mostVotedPlayer = playerID
-  //       }
-  //     })
-  //   })
-  //   playerSettingsFirebaseObject.child(mostVotedPlayer).child('isAlive').set(false);
-  // }
-
-  // setIsAliveFalse = () => {
-  //   const playerSettingsFirebaseObject = firebase.database().ref().child('presence')
-  //
-  //   playerSettingsFirebaseObject.once('value', snap => {
-  //     let players = snap.val()
-  //     Object.keys(players).map((playerID) => {
-  //       if(players[playerID].isAlive == 'recentlyDead') {
-  //         playerSettingsFirebaseObject.child(playerID).child('isAlive').set(false);
-  //       }
-  //     })
-  //   })
-  // }
-
-  // checkWinCondition = () => {
-  //   const playerSettingsFirebaseObject = firebase.database().ref().child('presence')
-  //   playerSettingsFirebaseObject.once('value', snap => {
-  //     let players = snap.val()
-  //
-  //     let werewolves = 0;
-  //     let villagers = 0;
-  //     Object.keys(players).map((playerID) => {
-  //       if(players[playerID].isAlive) {
-  //         if(players[playerID].role == 'Werewolf') {
-  //           werewolves += 1;
-  //         } else {
-  //           villagers += 1;
-  //         }
-  //       }
-  //     })
-  //
-  //     if(werewolves >= villagers) {
-  //       firebase.database().ref().child('game-settings').child('gameState').set('werewolves-win');
-  //
-  //     } else if (werewolves <= 0) {
-  //       firebase.database().ref().child('game-settings').child('gameState').set('villagers-win');
-  //
-  //     } else {
-  //       console.log('The game continues')
-  //     }
-  //   })
-  // }
 
   toggleNav = () => {
     document.getElementById("player-list").classList.toggle("show");
@@ -477,6 +349,53 @@ class App extends Component {
   //   <button onClick={this.voteKillTest}>Kill Test</button>
   //   <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
   // </div>
+
+   killSwitch = () => {
+     firebase.database().ref().child('game-settings').child('gameState').set('game-ended');
+   }
+
+
+  countDownTimer = () => {
+    this.clearCountDownInterval()
+    // let countDownAmount = (Date.now()+ 10000) - (Date.now());
+
+    let countDownAmount = (this.state.endTime) - Date.now();
+    console.log('this.state.endTime', this.state.endTime)
+    console.log('Date.now()', Date.now())
+    console.log('countDownAmount', countDownAmount)
+
+    let currentCount = Math.floor(countDownAmount / 1000);
+    console.log('currentCount:', currentCount)
+
+    this.setState({
+      countDown: currentCount
+    })
+
+    // let int = null
+    let int = setInterval(() => {
+      if(currentCount > 0) {
+        currentCount -= 1;
+        this.setState({
+          countDown: currentCount
+        })
+      } else {
+        this.clearCountDownInterval()
+        console.log('clear', this.state.timerInterval, this.state.countDown)
+      }
+    }, 1000)
+
+    this.setState({
+      timerInterval: int
+    })
+  }
+
+  clearCountDownInterval = () => {
+    clearInterval(this.state.timerInterval);
+    this.setState({
+      timerInterval: null,
+      countDown: 0
+    })
+  }
 
   setName(event) {
     event.preventDefault();
@@ -549,6 +468,8 @@ class App extends Component {
               {/* <input id='killButton' type="submit" value="Submit" /> */}
               {killBut}
             </form>
+            <button onClick={this.killSwitch}>Kill Switch</button>
+
           </div>
 
           <div id="seer-form-outer">
@@ -607,7 +528,9 @@ class App extends Component {
           <h1>&nbsp;{this.state.countDown}</h1> */}
 
           <PlayerList players={this.state.players} setVote={this.votedPlayerID} thisPlayer={this.state.thisplayerID}/>
-          {/* <button onClick={this.voteFormToggle}>Voting Form Toggle</button> */}
+          <button onClick={this.countDownTimer}>Start Timer</button>
+          <button onClick={this.clearCountDownInterval}>Clear Timer Interval</button>
+          <button onClick={this.killSwitch}>Kill Switch</button>
 
           <div className="ready-role">
             <p>Role:</p>
