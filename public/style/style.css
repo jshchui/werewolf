@@ -51,11 +51,51 @@ p {
   transition: 0.3s all;
 }
 
-#name-form {
+#name-form-screen {
   position: absolute;
   z-index: 100;
-  background-color: red;
+  /*background-color: red;*/
   padding: 1em;
+  box-sizing: border-box;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  height: 100vh;
+  background:url(../images/background.jpg);
+}
+
+#name-form {
+  width:50%;
+  min-width: 15em;
+  max-width: 40em;
+}
+
+#name-input {
+  width: 100%;
+  border-style: none;
+  background-color: transparent;
+  border-bottom: solid thin white;
+  color: white;
+  height: 30px;
+  text-align: center;
+}
+
+
+#name-form-name {
+  margin: 0.5em 0 0 0;
+  font-size: 20px;
+  float: left
+}
+
+#name-submit {
+  background-color: transparent;
+  border: none;
+  color: white;
+  float: right;
+  font-size: 25px;
+  font-weight: lighter;
+  margin-top: 3px;
 }
 
 #inspectButton, #killButton, #lynchButton {
@@ -67,6 +107,8 @@ p {
 }
 
 #votingform {
+  display: flex;
+  flex-direction: column;
   padding: 2em;
   width: 100%;
   box-sizing: border-box;
@@ -88,7 +130,7 @@ p {
   display: flex;
   flex-direction: column;
   padding: 2em;
-  width: 75%;
+  width: 100%;
   box-sizing: border-box;
 }
 
@@ -166,18 +208,28 @@ input[type="radio"] {
 }
 
 
-#alive-player-list {
+#inner-player-list {
   text-align: center;
   box-sizing: border-box;
   padding: 3em;
   margin-top: 12em;
 }
 
-#alive-player-list > ul {
+#inner-player-list > ul {
   color: white;
   padding-left: 0;
   list-style-type: none;
   font-size: 1em;
+}
+
+.AliveList {
+  color: green;
+  margin-top: 1em;
+}
+
+.DeadList {
+  color: red;
+  margin-top: 1em;
 }
 
 .playersInList {
@@ -462,7 +514,7 @@ input[type="radio"] {
 
   }
 
-  #alive-player-list > ul {
+  #inner-player-list > ul {
     font-size:1em;
   }
 }

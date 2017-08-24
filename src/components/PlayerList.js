@@ -85,13 +85,13 @@ class PlayerList extends Component {
 
   render() {
     return (
-      <div id="alive-player-list">
-        <h2>ALIVE</h2>
+      <div id="inner-player-list">
+        <h2 className='AliveList'>ALIVE</h2>
         <ul>
           {this.renderPlayerList(this.props.players, this.props.thisPlayer) }
         </ul>
 
-        <h2>DEAD</h2>
+        <h2 className='DeadList'>DEAD</h2>
         <ul>
           {this.renderDeadPlayerList(this.props.players, this.props.thisPlayer) }
         </ul>

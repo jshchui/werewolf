@@ -332,7 +332,7 @@ class App extends Component {
     //   formStatus.style.display = 'none';
     // }
 
-    document.getElementById('lynch-form-outer').classList.toggle("appear");
+    document.getElementById('voting-form-outer').classList.toggle("appear");
   }
 
 
@@ -399,7 +399,7 @@ class App extends Component {
 
   setName(event) {
     event.preventDefault();
-    document.getElementById('name-form').style.display = 'none';
+    document.getElementById('name-form-screen').style.display = 'none';
     console.log('alias', this.state.alias);
     this.setupGame()
   }
@@ -447,15 +447,15 @@ class App extends Component {
       <div className="App">
         <div id="overlapping-components">
 
-          <div id="name-form">
-            <form id="name" onSubmit={this.setName}>
-              <h2>Name</h2>
-              <input type="text"
+          <div id="name-form-screen">
+            <form id="name-form" onSubmit={this.setName}>
+              <input id="name-input" type="text"
                 name="name"
                 onChange={this.handleChange}
                 value={this.state.alias}
               />
-              <input type="submit" value="Submit" />
+              <h2 id='name-form-name'>Name</h2>
+              <input id='name-submit' type="submit" value=">>" />
             </form>
 
           </div>
@@ -464,11 +464,12 @@ class App extends Component {
             {this.renderVotesOnPlayers(this.state.players, 'werewolf')}
             <form id="votingform" onSubmit={this.setVote}>
               <h2>Choose a person to get a claw in face</h2>
-              {votingPlayers}
+              <div>
+                {votingPlayers}
+              </div>
               {/* <input id='killButton' type="submit" value="Submit" /> */}
               {killBut}
             </form>
-            <button onClick={this.killSwitch}>Kill Switch</button>
 
           </div>
 
