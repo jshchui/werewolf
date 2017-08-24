@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import * as firebase from 'firebase';
 import './index.js';
@@ -16,7 +15,6 @@ class App extends Component {
   constructor() {
     super(); //i deleted props
 
-
     this.state = {
       players: {},
       alias: '',
@@ -31,16 +29,9 @@ class App extends Component {
       endTime: null,
       timerInterval: null
     };
-    console.log('constructor');
 
     this.handleChange = this.handleChange.bind(this);
     this.setName = this.setName.bind(this);
-  }
-
-  componentWillMount() {
-    console.log('componentWillMount');
-
-    // this.setName();
   }
 
   setupGame() {
@@ -50,11 +41,8 @@ class App extends Component {
 
     const rootRef = firebase.database().ref();
     const presenceRef = rootRef.child('presence');
-    // const gameStateRef = rootRef.child('react').child('gameState');
-    const reactdbStateRef = rootRef.child('react');
     // checks the cycle
     const gameSettingsRef = rootRef.child('game-settings');
-    // gameStateRef.set(false);
     gameSettingsRef.child('currentCounter').set('0');
 
     let lastGameState;
@@ -63,8 +51,6 @@ class App extends Component {
     this.props.firebaseService.setPlayerAlias(id, alias);
     this.props.firebaseService.setOnlineAndWatchPresence(id, alias);
     this.props.firebaseService.countOnlineUser((count) => {});
-
-
 
     presenceRef.on('value', snap => {
       this.setState({
@@ -90,23 +76,34 @@ class App extends Component {
     gameSettingsRef.on('value', snap => {
       const gameSettings = snap.val()
       this.setState({
-        // countDown: gameSettings.currentCounter,
         endTime: gameSettings.endTime,
         gameStatus: gameSettings.gameState
       })
-      console.log('countdownTimer ran');
       this.countDownTimer();
 
-      if(lastGameState != gameSettings.gameState) {
+
+
+      if(lastGameState !== gameSettings.gameState) {
         presenceRef.child(id).once('value', snap => {
           const thisPlayer = snap.val()
-          if(gameSettings.gameState == "Werewolf-Phase" && thisPlayer.role == 'Werewolf' && thisPlayer.isAlive) {
-            this.formHide('death-alert');
 
+
+          if(gameSettings.gameState === "all-ready") {
+            console.log('reset');
+            presenceRef.child(id).update({
+              isAlive: true,
+              ready: false,
+              votes: 0
+            })
+          }
+
+
+          if(gameSettings.gameState !== "villagers-win" &&  gameSettings.gameState !== "werewolves-win" && gameSettings.gameState === "Werewolf-Phase" && thisPlayer.role === 'Werewolf' && thisPlayer.isAlive ) {
+            this.formHide('death-alert');
             this.formShow('voting-form-outer');
-          } else if (gameSettings.gameState == "Seer-Phase" && thisPlayer.role == 'Seer' && thisPlayer.isAlive) {
+          } else if (gameSettings.gameState === "Seer-Phase" && thisPlayer.role === 'Seer' && thisPlayer.isAlive) {
             this.formShow('seer-form-outer');
-          } else if (gameSettings.gameState == "Night-Death-Phase") {
+          } else if (gameSettings.gameState === "Night-Death-Phase") {
             this.formShow('death-alert');
             this.formHide('seer-form-outer');
             this.formHide('voting-form-outer');
@@ -122,9 +119,9 @@ class App extends Component {
             document.getElementById('inspectButton').disabled = false;
 
 
-          } else if (gameSettings.gameState == "Lynch-Phase") {
+          } else if (gameSettings.gameState === "Lynch-Phase") {
             this.formShow('lynch-form-outer');
-          } else if (gameSettings.gameState == "Day-Death-Phase") {
+          } else if (gameSettings.gameState === "Day-Death-Phase") {
             this.formShow('death-alert')
             this.formHide('lynch-form-outer');
 
@@ -135,17 +132,21 @@ class App extends Component {
               nightTime: true
             })
 
-          } else if (gameSettings.gameState == "werewolves-win") {
-            this.formShow('werewolves-win')
-          } else if (gameSettings.gameState == "villagers-win") {
-            this.formShow('villagers-win')
+          } else if (gameSettings.gameState === "werewolves-win") {
+            // this.formShow('werewolves-win')
+          } else if (gameSettings.gameState === "villagers-win") {
+            // this.formShow('villagers-win')
           } else {
-            this.formHide('werewolves-win')
-            this.formHide('villagers-win')
+            // this.formHide('werewolves-win')
+            // this.formHide('villagers-win')
             this.formHide('voting-form-outer');
             this.formHide('seer-form-outer');
             this.formHide('death-alert');
             this.formHide('lynch-form-outer');
+
+            if(thisPlayer.ready === true) {
+              presenceRef.child(id).child('ready').set(false)
+            }
           }
         })
       }
@@ -197,7 +198,7 @@ class App extends Component {
     votingOptions.forEach(player => {
       let currentPlayer = player.nextSibling
 
-      if (player.id != playerID) {
+      if (player.id !== playerID) {
         currentPlayer.style.display = 'none'
         hiddenOptions.push(currentPlayer)
       }
@@ -245,11 +246,11 @@ class App extends Component {
   }
 
   renderVotesOnPlayers = (players, phase) => {
-    return Object.keys(players).map((playerID) => {
-      if(phase == 'werewolf') {
-        if(players[playerID].role == 'Werewolf') {
-          if(players[playerID].isAlive == true) {
-            if(players[playerID].currentAction == 'confirmed-vote') {
+    return Object.keys(players).map((playerID, index) => {
+      if(phase === 'werewolf') {
+        if(players[playerID].role === 'Werewolf') {
+          if(players[playerID].isAlive === true) {
+            if(players[playerID].currentAction === 'confirmed-vote') {
               return (
                 <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has Locked In <span className="confirmed">{players[playerID].selectedPerson}</span></h3>
               )
@@ -261,14 +262,14 @@ class App extends Component {
           }
         }
       } else {
-        if(players[playerID].isAlive == true) {
-          if(players[playerID].currentAction == 'confirmed-vote')
+        if(players[playerID].isAlive === true) {
+          if(players[playerID].currentAction === 'confirmed-vote')
           return (
             <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has Locked In <span className="confirmed">{players[playerID].selectedPerson}</span></h3>
           )
           else {
             return (
-              <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has selected <span className="selecting">{players[playerID].selectedPerson || 'no-one'}</span></h3>
+              <h3 key={index} className="voteOnPlayers">{this.state.players[playerID].alias} has selected <span className="selecting">{players[playerID].selectedPerson || 'no-one'}</span></h3>
             )
           }
         }
@@ -278,7 +279,7 @@ class App extends Component {
 
   renderVotingPlayers = (players) => {
     return Object.keys(players).map((playerID, index) => {
-      if(this.state.players[playerID].isAlive == true) {
+      if(this.state.players[playerID].isAlive === true) {
         return (
           <div className="vote_selections" key={index}>
               <input
@@ -310,7 +311,7 @@ class App extends Component {
 
   renderDeadPlayers = (players) => {
     return Object.keys(players).map((playerID) => {
-      if(this.state.players[playerID].isAlive == 'recentlyDead') {
+      if(this.state.players[playerID].isAlive === 'recentlyDead') {
         return (
           <div>
             <h3>{this.state.players[playerID].alias} was found dead on the floor</h3>
@@ -357,7 +358,6 @@ class App extends Component {
 
   countDownTimer = () => {
     this.clearCountDownInterval()
-    // let countDownAmount = (Date.now()+ 10000) - (Date.now());
 
     let countDownAmount = (this.state.endTime) - Date.now();
     console.log('this.state.endTime', this.state.endTime)
@@ -423,7 +423,7 @@ class App extends Component {
     let inspectBut
     let lynchBut
 
-    if(this.state.amIAlive == true) {
+    if(this.state.amIAlive === true) {
       votingPlayers = this.renderVotingPlayers(this.state.players)
       killBut = <input id='killButton' type="submit" value="Submit" />
       inspectBut = <input id='inspectButton' type="submit" value="Submit" />
@@ -438,9 +438,9 @@ class App extends Component {
     let sunOrMoon;
 
     if(this.state.nightTime === true) {
-      sunOrMoon = <img className='sun-moon' src={moon} />
+      sunOrMoon = <img className='sun-moon' src={moon} alt='moon' />
     } else if(this.state.nightTime === false ) {
-      sunOrMoon = <img className='sun-moon' src={sun} />
+      sunOrMoon = <img className='sun-moon' src={sun} alt='sun' />
     }
 
     return (
@@ -500,7 +500,7 @@ class App extends Component {
             </form>
           </div>
 
-          <div id="werewolves-win">
+          {/* <div id="werewolves-win">
             <div id="werewolves-win-box">
               <h2>The werewolves win!</h2>
             </div>
@@ -510,7 +510,7 @@ class App extends Component {
             <div id="villagers-win-box">
               <h2>The villagers-win</h2>
             </div>
-          </div>
+          </div> */}
         </div>
 
 
@@ -528,9 +528,9 @@ class App extends Component {
           <h1>&nbsp;{this.state.countDown}</h1> */}
 
           <PlayerList players={this.state.players} setVote={this.votedPlayerID} thisPlayer={this.state.thisplayerID}/>
-          <button onClick={this.countDownTimer}>Start Timer</button>
-          <button onClick={this.clearCountDownInterval}>Clear Timer Interval</button>
-          <button onClick={this.killSwitch}>Kill Switch</button>
+          {/* <button onClick={this.countDownTimer}>Start Timer</button> */}
+          {/* <button onClick={this.clearCountDownInterval}>Clear Timer Interval</button> */}
+          {/* <button onClick={this.killSwitch}>Kill Switch</button> */}
 
           <div className="ready-role">
             <p>Role:</p>

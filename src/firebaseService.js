@@ -44,7 +44,7 @@ export default function(db) {
 
     //checks if all users are ready
     setReady(thisplayerID, isReady) {
-      if(isReady == true){
+      if(isReady === true){
         return db.child('presence').child(thisplayerID).child('ready').set(true);
       } else {
         return db.child('presence').child(thisplayerID).child('ready').set(false);

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import * as firebase from 'firebase';
+// import * as firebase from 'firebase';
 import '../index.js';
 
 
@@ -8,7 +8,7 @@ class PlayerList extends Component {
   renderPlayerList = (players, thisPlayer) => {
     // If the player is you, highlight yourself
     return Object.keys(players).map((playerID, index) => {
-      if(players[playerID].isAlive !== false) {
+      if(players[playerID].isAlive === true) {
         if(playerID === thisPlayer) {
           if(players[thisPlayer].ready) {
             return (
@@ -48,19 +48,35 @@ class PlayerList extends Component {
   //if player is dead, render here instead
   renderDeadPlayerList = (players, thisPlayer) => {
     return Object.keys(players).map((playerID, index) => {
-      if(players[playerID].isAlive == false) {
-        if(playerID == thisPlayer) {
-          return (
-            <div className="playersInList highlight" key={index}>
-              <li>{players[playerID].alias}</li>
-            </div>
-          )
+      if(players[playerID].isAlive !== true ) { // if player is dead
+        if(playerID === thisPlayer) {
+          if(players[thisPlayer].ready) {
+            return (
+              <div className="playersInList highlight ready-highlight" key={index}>
+                <li>{players[playerID].alias}</li>
+              </div>
+            )
+          } else {
+            return (
+              <div className="playersInList highlight" key={index}>
+                <li>{players[playerID].alias}</li>
+              </div>
+            )
+          }
         } else {
-          return (
-            <div className="playersInList" key={index}>
-              <li>{players[playerID].alias}</li>
-            </div>
-          )
+          if(players[playerID].ready) {
+            return (
+              <div className="playersInList ready-highlight" key={index}>
+                <li>{players[playerID].alias}</li>
+              </div>
+            )
+          } else {
+            return (
+              <div className="playersInList" key={index}>
+                <li>{players[playerID].alias}</li>
+              </div>
+            )
+          }
         }
       }
     })
@@ -68,12 +84,6 @@ class PlayerList extends Component {
 
 
   render() {
-
-    // renderTopics: function() {
-    //   retu (zrn this.state.players.map((player, i) => {
-    //     return (<li>{player.id}</li>)
-    //   });
-    // }
     return (
       <div id="alive-player-list">
         <h2>ALIVE</h2>

@@ -81,8 +81,8 @@ class ChatRoom extends Component {
     let lastMessageId = null;
 
     const currentMessage = this.state.messages.map((message, i) => {
-      if(message.playerId == this.props.playerId) {
-        if(lastMessageId == message.playerId) {
+      if(message.playerId === this.props.playerId) {
+        if(lastMessageId === message.playerId) {
           lastMessageId = message.playerId;
           return (
             <div className="single-message-self">
@@ -109,10 +109,10 @@ class ChatRoom extends Component {
           )
         }
       } else {
-        if(lastMessageId == message.playerId) {
+        if(lastMessageId === message.playerId) {
           lastMessageId = message.playerId;
           return (
-            <div className="single-message">
+            <div key={i} className="single-message">
               <div className="single-message-container cancel-margin">
                 <p key={message.id}>
                   {message.text}
@@ -123,7 +123,7 @@ class ChatRoom extends Component {
         } else {
           lastMessageId = message.playerId;
           return (
-            <div>
+            <div key={i}>
               <h3 className="user-name">{ message.player }: </h3>
               <div className="single-message">
                 <div className="single-message-container">
