@@ -8,6 +8,9 @@ import Role from './components/Role';
 
 import moon from './moon.png';
 import sun from './sun.png';
+import wolf_white from './wolf_white.png';
+import wolf_line from './wolf_line.png';
+
 
 
 class App extends Component {
@@ -21,13 +24,13 @@ class App extends Component {
       gameStatus: 'unready',
       thisplayerID: null,
       thisplayerRole: null,
-      countDown: 0,
       selectedOption: null,
       inspected: null,
       amIAlive: null,
       nightTime: true,
       endTime: null,
-      timerInterval: null
+      timerInterval: null,
+      countDown: 0
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -79,8 +82,8 @@ class App extends Component {
         endTime: gameSettings.endTime,
         gameStatus: gameSettings.gameState
       })
-      this.countDownTimer();
 
+      this.countDownTimer();
 
 
       if(lastGameState !== gameSettings.gameState) {
@@ -89,6 +92,7 @@ class App extends Component {
 
 
           if(gameSettings.gameState === "all-ready") {
+            this.formShow('starting-turn')
             console.log('reset');
             presenceRef.child(id).update({
               isAlive: true,
@@ -97,16 +101,29 @@ class App extends Component {
             })
           }
 
-
-          if(gameSettings.gameState !== "villagers-win" &&  gameSettings.gameState !== "werewolves-win" && gameSettings.gameState === "Werewolf-Phase" && thisPlayer.role === 'Werewolf' && thisPlayer.isAlive ) {
+          if(gameSettings.gameState === "Werewolf-Phase" && thisPlayer.isAlive ) {
             this.formHide('death-alert');
-            this.formShow('voting-form-outer');
-          } else if (gameSettings.gameState === "Seer-Phase" && thisPlayer.role === 'Seer' && thisPlayer.isAlive) {
-            this.formShow('seer-form-outer');
+            this.formHide('starting-turn')
+            if(thisPlayer.role === 'Werewolf') {
+              this.formShow('voting-form-outer');
+            } else {
+              console.log('werewolves-turn show')
+              this.formShow('werewolf-turn');
+            }
+          } else if (gameSettings.gameState === "Seer-Phase" && thisPlayer.isAlive) {
+            this.formHide('werewolf-turn');
+
+            if(thisPlayer.role === 'Seer') {
+              this.formShow('seer-form-outer');
+            } else {
+              this.formShow('seer-turn')
+            }
           } else if (gameSettings.gameState === "Night-Death-Phase") {
             this.formShow('death-alert');
             this.formHide('seer-form-outer');
             this.formHide('voting-form-outer');
+            this.formHide('seer-turn')
+            this.formHide('werewolf-turn')
             this.clearThisPlayerAction(presenceRef);
 
             //Set state inspected here for seer logic
@@ -143,6 +160,9 @@ class App extends Component {
             this.formHide('seer-form-outer');
             this.formHide('death-alert');
             this.formHide('lynch-form-outer');
+            this.formHide('seer-turn');
+            this.formHide('werewolf-turn');
+
 
             if(thisPlayer.ready === true) {
               presenceRef.child(id).child('ready').set(false)
@@ -168,6 +188,7 @@ class App extends Component {
 
   formShow = (form) => {
     let formStatus = document.getElementById(form);
+    console.log('showing forms');
     formStatus.style.display = 'flex';
   }
 
@@ -192,22 +213,23 @@ class App extends Component {
     document.getElementById('killButton').disabled = true;
     document.getElementById('lynchButton').disabled = true;
 
-    const votingOptions = event.target.querySelectorAll('input[type="radio"]')
-    let hiddenOptions = []
+    //Voting options hiding dont delete =========================================
+    // const votingOptions = event.target.querySelectorAll('input[type="radio"]')
+    // let hiddenOptions = []
 
-    votingOptions.forEach(player => {
-      let currentPlayer = player.nextSibling
+    // votingOptions.forEach(player => {
+    //   let currentPlayer = player.nextSibling
+    //
+    //   if (player.id !== playerID) {
+    //     currentPlayer.style.display = 'none'
+    //     hiddenOptions.push(currentPlayer)
+    //   }
+    // })
 
-      if (player.id !== playerID) {
-        currentPlayer.style.display = 'none'
-        hiddenOptions.push(currentPlayer)
-      }
-    })
-
-    setTimeout(() => {
-      hiddenOptions.forEach(player => player.style.display = 'inline-block')
-    }, 3000)
-
+    // setTimeout(() => {
+    //   hiddenOptions.forEach(player => player.style.display = 'inline-block')
+    // }, 3000)
+    // ===========================================================================
     firebase.database().ref().child('presence').child(playerID).child('votes')
     .once('value', snap => {
       let selectedPlayerCurrentVotes = snap.val();
@@ -310,8 +332,10 @@ class App extends Component {
   }
 
   renderDeadPlayers = (players) => {
+    // let didAnyoneDie = false;
     return Object.keys(players).map((playerID) => {
       if(this.state.players[playerID].isAlive === 'recentlyDead') {
+        // didAnyoneDie = true;
         return (
           <div>
             <h3>{this.state.players[playerID].alias} was found dead on the floor</h3>
@@ -322,6 +346,8 @@ class App extends Component {
         return null;
       }
     })
+
+    // if()
   }
 
   voteFormToggle = () => {
@@ -332,7 +358,7 @@ class App extends Component {
     //   formStatus.style.display = 'none';
     // }
 
-    document.getElementById('voting-form-outer').classList.toggle("appear");
+    document.getElementById('seer-form-outer').classList.toggle("appear");
   }
 
 
@@ -359,28 +385,32 @@ class App extends Component {
   countDownTimer = () => {
     this.clearCountDownInterval()
 
-    let countDownAmount = (this.state.endTime) - Date.now();
-    console.log('this.state.endTime', this.state.endTime)
-    console.log('Date.now()', Date.now())
-    console.log('countDownAmount', countDownAmount)
+    let endTime = typeof(this.state.endTime) != 'undefined' ? this.state.endTime : 0
+
+    let countDownAmount = endTime - Date.now();
 
     let currentCount = Math.floor(countDownAmount / 1000);
-    console.log('currentCount:', currentCount)
 
+    if (isNaN(currentCount)) {
+      debugger
+    }
+    // console.log(currentCount)
+    // debugger
     this.setState({
       countDown: currentCount
     })
+    // countDown: currentCount > 0 ? currentCount : 77
 
     // let int = null
     let int = setInterval(() => {
       if(currentCount > 0) {
         currentCount -= 1;
+
         this.setState({
           countDown: currentCount
         })
       } else {
         this.clearCountDownInterval()
-        console.log('clear', this.state.timerInterval, this.state.countDown)
       }
     }, 1000)
 
@@ -400,12 +430,10 @@ class App extends Component {
   setName(event) {
     event.preventDefault();
     document.getElementById('name-form-screen').style.display = 'none';
-    console.log('alias', this.state.alias);
     this.setupGame()
   }
 
   handleChange(event) {
-    console.log('handlingChange', event.target.value)
     this.setState({alias: event.target.value})
   }
 
@@ -443,11 +471,33 @@ class App extends Component {
       sunOrMoon = <img className='sun-moon' src={sun} alt='sun' />
     }
 
+    let roleDisplay ;
+    if(this.state.thisplayerRole === 'Werewolf') {
+      roleDisplay =
+      <div>
+        <img className='wolf_picture' src={wolf_line} alt='sun' />
+        <h2>You are a Werewolf</h2>
+        <h3>Kill a player every night, eliminate all the villagers</h3>
+      </div>
+    } else if (this.state.thisplayerRole === 'Seer') {
+      roleDisplay =
+          <div>
+            <h2>You are the Seer</h2>
+            <h3>Inspect a player every night, eliminate all the werewolves</h3>
+          </div>
+    } else {
+      roleDisplay =
+      <div>
+        <h2>You are a Villager</h2>
+        <h3>Eliminate all the werewolves</h3>
+      </div>
+    }
     return (
       <div className="App">
         <div id="overlapping-components">
 
           <div id="name-form-screen">
+            <img className='wolf_picture' src={wolf_line} alt='wolf' />
             <form id="name-form" onSubmit={this.setName}>
               <input id="name-input" type="text"
                 name="name"
@@ -463,7 +513,7 @@ class App extends Component {
           <div id="voting-form-outer">
             {this.renderVotesOnPlayers(this.state.players, 'werewolf')}
             <form id="votingform" onSubmit={this.setVote}>
-              <h2>Choose a person to get a claw in face</h2>
+              <h2>Choose a person that deserves a claw in the face</h2>
               <div>
                 {votingPlayers}
               </div>
@@ -476,7 +526,9 @@ class App extends Component {
           <div id="seer-form-outer">
             <form id="seerform" onSubmit={this.inspect}>
               <h2>Choose a player to inspect</h2>
-              {votingPlayers}
+              <div>
+                {votingPlayers}
+              </div>
               {/* <input id='inspectButton' type="submit" value="Submit" /> */}
               {inspectBut}
               {InspectedPlayer}
@@ -501,6 +553,26 @@ class App extends Component {
             </form>
           </div>
 
+          <div id="werewolf-turn">
+            <div id="werewolf-turn-box">
+              <h2>The werewolves are lurking...</h2>
+            </div>
+          </div>
+
+          <div id="seer-turn">
+            <div id="seer-turn-box">
+              <h2>The seer is probing...</h2>
+            </div>
+          </div>
+
+          <div id='starting-turn'>
+            <div id='starting-turn-box'>
+              {roleDisplay}
+            </div>
+          </div>
+
+
+
           {/* <div id="werewolves-win">
             <div id="werewolves-win-box">
               <h2>The werewolves win!</h2>
@@ -521,7 +593,7 @@ class App extends Component {
           {/* <img className='sun-moon' src={moon} /> */}
           {sunOrMoon}
 
-          <span id='timer'>{this.state.countDown}</span>
+          <span id='timer'>{(this.state.countDown >= 0) ? this.state.countDown : 0}</span>
           <h2>{this.state.gameStatus}</h2>
         </div>
         <div className="show" id="player-list">
@@ -543,11 +615,11 @@ class App extends Component {
 
 
         <ChatRoom player={this.state.alias} playerId={this.state.thisplayerID} />
-        <button className="hamburger" onClick={this.voteFormToggle}>
+        {/* <button className="hamburger" onClick={this.voteFormToggle}>
           <span></span>
           <span></span>
           <span></span>
-        </button>
+        </button> */}
       </div>
     );
   }

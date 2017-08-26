@@ -1,6 +1,8 @@
 .App {
   overflow: auto;
   position: relative;
+  display: flex;
+  justify-content: center;
 }
 
 * {
@@ -20,33 +22,90 @@ h2 {
   color: white;
   text-transform: uppercase;
   font-weight: lighter;
+  margin: 0.25em;
 }
 
 h3 {
+  font-size: 1em;
   color: white;
 }
 
 p {
   color: white;
+  font-size: 12px;
 }
 
-#voting-form-outer, #seer-form-outer, #death-alert, #lynch-form-outer, #werewolves-win, #villagers-win {
+#voting-form-outer, #seer-form-outer, #death-alert, #lynch-form-outer, #werewolves-win, #villagers-win, #werewolf-turn, #seer-turn, #starting-turn {
   position: absolute;
   display: none;
   width:100%;
   height: 100vh;
   bottom: 0;
   z-index: 5;
-  background-color: black;
+  background-color: #0f2943;
 
-  height: calc(100vh - 70px);
+  /*height: calc(100vh - 70px);*/
   justify-content: center;
   align-items: center;
   flex-direction: column;
   transition: 0.3s all;
 }
 
+#name-form-screen {
+  position: absolute;
+  z-index: 100;
+  /*background-color: red;*/
+  padding: 1em;
+  box-sizing: border-box;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background:url(../images/background.jpg);
+}
+
+.wolf_picture {
+  margin: 2.5em;
+  width: 9em;
+}
+
+#name-form {
+  width:50%;
+  min-width: 15em;
+  max-width: 25em;
+}
+
+#name-input {
+  width: 100%;
+  border-style: none;
+  background-color: transparent;
+  border-bottom: solid thin white;
+  color: white;
+  height: 30px;
+  text-align: center;
+}
+
+
+#name-form-name {
+  margin: 0.5em 0 0 0;
+  font-size: 15px;
+  float: left
+}
+
+#name-submit {
+  background-color: transparent;
+  border: none;
+  color: white;
+  float: right;
+  font-size: 20px;
+  font-weight: lighter;
+  margin-top: 3px;
+}
+
 #inspectButton, #killButton, #lynchButton {
+  margin: 0.5em auto;
   margin-top: 0.5em;
   padding: 1em 2em;
   border: none;
@@ -54,12 +113,16 @@ p {
 }
 
 #votingform {
+  display: flex;
+  flex-direction: column;
   padding: 2em;
   width: 100%;
   box-sizing: border-box;
 }
 
 #seerform {
+  display: flex;
+  flex-direction: column;
   padding: 2em;
   width: 100%;
   box-sizing: border-box;
@@ -72,25 +135,33 @@ p {
 }
 
 #lynchform {
+  display: flex;
+  flex-direction: column;
   padding: 2em;
   width: 100%;
   box-sizing: border-box;
 }
 
-#villagers-win-box, #werewolves-win-box {
+#villagers-win-box, #werewolves-win-box, #werewolf-turn-box, #seer-turn-box, #starting-turn-box {
   padding: 3em;
   color: white;
-  background-color: black;
+  background-color: #0f2943;
+}
+
+.vote_selections {
+  width: 50%;
+  float: left;
 }
 
 label {
   color: white;
   border: solid thin white;
   padding: 1em 2em;
-  width: 50%;
+  width: 85%;
   display: inline-block;
   margin: 0.5em 0;
   transition: 0.4s all;
+  box-sizing: border-box
 }
 
 label:hover {
@@ -132,26 +203,41 @@ input[type="radio"] {
 
 #player-list {
   float: left;
-  background-color: #262626;
-  width: 25%;
+  /*background-color: #262626;*/
+  background-color: #0f2943;
+
+
+  width: 20%;
   min-width: 300px;
-  height: calc(100vh - 70px);
+  /*height: calc(100vh - 70px);*/
+  height: 100vh;
   position: relative;
   z-index: 4;
 }
 
 
-#alive-player-list {
-  text-align: left;
+#inner-player-list {
+  text-align: center;
   box-sizing: border-box;
   padding: 3em;
+  margin-top: 10em;
 }
 
-#alive-player-list > ul {
+#inner-player-list > ul {
   color: white;
   padding-left: 0;
   list-style-type: none;
-  font-size: 1.5em;
+  font-size: 1em;
+}
+
+.AliveList {
+  color: green;
+  margin-top: 1em;
+}
+
+.DeadList {
+  color: red;
+  margin-top: 1em;
 }
 
 .playersInList {
@@ -160,19 +246,55 @@ input[type="radio"] {
 
 .highlight {
   border: thin solid white;
-  background: linear-gradient(to right, #04002A, #005254);
+  /*background: linear-gradient(to right, #04002A, #005254);*/
+}
+
+.ready-highlight {
+  transition: all 0.4s;
+  background-color: green;
 }
 
 .announcer {
+  min-width: 300px;
+  position: absolute;
+  top: -10em;
+  width: 20%;
+  left: 0;
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 70px;
+  z-index: 10;
+  box-sizing: border-box;
+  padding: 1em 0.5em;
+
+  background-color: #0f2943
+
   /*background-color: lightblue;*/
-  background: linear-gradient(to right, #04002A, #005254);
+  /*background: linear-gradient(to right, #04002A, #005254);*/
 }
 
-.announcer span {
+#timer {
+  font-family: 'Montserrat', sans-serif;
+  color: white;
+  font-size: 36px;
+  font-weight: 500;
+}
+
+.sun-moon {
+  max-width: 85%;
+  -webkit-animation: rotation 30s infinite linear;
+}
+@-webkit-keyframes rotation {
+		from {
+				-webkit-transform: rotate(0deg);
+		}
+		to {
+				-webkit-transform: rotate(359deg);
+		}
+}
+
+.hamburger span {
   display: block;
   width: 33px;
   height: 2px;
@@ -196,17 +318,20 @@ input[type="radio"] {
   position: absolute;
   top: 1.7em;
   right: 1.7em;
-
+  z-index: 100;
 }
 
 #chatRoom-container {
   max-width: calc(100% - 300px);
   float: left;
-  width: 75%;
-  height: calc(100vh - 70px);
+  width: 80%;
+  height: 100vh;
   position: relative;
   overflow: auto;
-  background-color: #343434;
+  /*background-color: #343434;*/
+  background:url(../images/background.jpg);
+  background-size: cover;
+  background-position: center;
 }
 
 #chatRoom-container::-webkit-scrollbar-track
@@ -240,17 +365,20 @@ input[type="radio"] {
 .message-form {
   display:flex;
   bottom: 0;
-  width: 75%;
+  width: 80%;
   position: fixed;
 }
 
 .message-input {
+  background-color: #464646;
+  border-style: none;
   display: flex;
-  width: 80%;
+  width: 100%;
   padding: 0.5em;
 }
 
 .message-submit {
+  display: none;
   width: 20%;
   border-style: none;
   background-color: #04002A;
@@ -296,7 +424,7 @@ input[type="radio"] {
 
 .single-message-self > .single-message-container {
   float: left;
-  background-color: #04002A;
+  background-color: #0f2943;
   padding: 0 1em;
   margin-top: 0.25em;
   border-radius: 0.5em;
@@ -347,15 +475,28 @@ input[type="radio"] {
   z-index: 99;
 }
 
+.appear {
+  display: flex !important;
+}
+
 @media (max-width: 1020px) {
   #player-list {
     position: absolute;
     /*transform: translateX(-300px);*/
     transition: 0.4s all;
+    width: 65%;
+    max-width: 550px;
+
+  }
+
+  .announcer {
+    width: 65%;
+    left: initial;
+    max-width: 550px;
   }
 
   .show {
-    transform: translateX(-300px);
+    transform: translateY(-100%);
   }
 
   #chatRoom-container {
@@ -363,12 +504,12 @@ input[type="radio"] {
     max-width: 100%;
   }
 
-  .message-form {
+  #lynchform {
     width: 100%;
   }
 
-  h1 {
-    font-size: 1.4em;
+  .message-form {
+    width: 100%;
   }
 
   h2 {
@@ -376,10 +517,12 @@ input[type="radio"] {
   }
 
   h3 {
-    font-size:1.2em;
+    font-size:1.1em;
+    margin: 0.25em;
+
   }
 
-  #alive-player-list > ul {
+  #inner-player-list > ul {
     font-size:1em;
   }
 }

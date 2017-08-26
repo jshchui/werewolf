@@ -122,24 +122,23 @@ exports.gameStateListener = functions.database.ref('game-settings').onUpdate((ev
       switch(gameSettings.gameState) {
         case "all-ready":
           assignRole(playerSettingsFirebaseObject)
-          countDownInterval(gameSettingsFirebaseObject, 'Werewolf-Phase', 5)
+          countDownInterval(gameSettingsFirebaseObject, 'Werewolf-Phase', 8)
           break;
         case "Werewolf-Phase":
-          console.log('werewolf phase ran')
           // checkWinCondition(playerSettingsFirebaseObject, gameSettingsFirebaseObject)
           setIsAliveFalse(playerSettingsFirebaseObject);
           countDownInterval(gameSettingsFirebaseObject, 'Seer-Phase', 10)
           break;
         case "Seer-Phase":
-          countDownInterval(gameSettingsFirebaseObject, 'Night-Death-Phase', 8)
+          countDownInterval(gameSettingsFirebaseObject, 'Night-Death-Phase', 10)
           break;
         case "Night-Death-Phase":
           killMostVotedPlayer(playerSettingsFirebaseObject)
-          countDownInterval(gameSettingsFirebaseObject, 'Day-Phase', 4)
+          countDownInterval(gameSettingsFirebaseObject, 'Day-Phase', 6)
           break;
         case "Day-Phase":
           setIsAliveFalse(playerSettingsFirebaseObject);
-          countDownInterval(gameSettingsFirebaseObject, 'Lynch-Phase', 15)
+          countDownInterval(gameSettingsFirebaseObject, 'Lynch-Phase', 10)
           break;
         case "Lynch-Phase":
           countDownInterval(gameSettingsFirebaseObject, 'Day-Death-Phase', 10)
@@ -147,7 +146,7 @@ exports.gameStateListener = functions.database.ref('game-settings').onUpdate((ev
         case "Day-Death-Phase":
           killMostVotedPlayer(playerSettingsFirebaseObject)
           // countDownInterval(gameSettingsFirebaseObject, 'Werewolf-Phase', 5)
-          countDownInterval(gameSettingsFirebaseObject, 'Check-Win', 5)
+          countDownInterval(gameSettingsFirebaseObject, 'Check-Win', 6)
           break;
         case "Check-Win":
           checkWinCondition(playerSettingsFirebaseObject, gameSettingsFirebaseObject)
@@ -195,8 +194,17 @@ const countDownInterval = (gameSettings, nextState, countDownTime) => {
         currentCountdown -= 1;
         // gameSettings.child('currentCounter').set(currentCountdown)
       } else {
-        // checkWinCondition(event.data.ref.parent.child('presence'), event.data.ref.parent.child('game-settings'))
 
+        // exports.gameStateListenerTest = functions.database.ref('game-settings').onUpdate((event) => {
+        //   const gameSettings = event.data.val()
+        //   const gameSettingsFirebaseObject = event.data.ref.parent.child('game-settings')
+        //   const playerSettingsFirebaseObject = event.data.ref.parent.child('presence')
+        //   console.log('checking win condition');
+        //   console.log(event.data.val());
+        // })
+        // let presence = firebase.database().ref().child('presence')
+        // let gameSettings = firebase.database().ref().child('game-settings')
+        // checkWinCondition(presence, gameSettings)
         gameSettings.child('gameState').once('value', snap => {
           currentGameState = snap.val();
           if(currentGameState != "game-ended" && currentGameState != "werewolves-win" && currentGameState != "villagers-win") {

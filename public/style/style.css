@@ -35,7 +35,7 @@ p {
   font-size: 12px;
 }
 
-#voting-form-outer, #seer-form-outer, #death-alert, #lynch-form-outer, #werewolves-win, #villagers-win {
+#voting-form-outer, #seer-form-outer, #death-alert, #lynch-form-outer, #werewolves-win, #villagers-win, #werewolf-turn, #seer-turn, #starting-turn {
   position: absolute;
   display: none;
   width:100%;
@@ -61,14 +61,20 @@ p {
   align-items: center;
   justify-content: center;
   display: flex;
+  flex-direction: column;
   height: 100vh;
   background:url(../images/background.jpg);
+}
+
+.wolf_picture {
+  margin: 2.5em;
+  width: 9em;
 }
 
 #name-form {
   width:50%;
   min-width: 15em;
-  max-width: 40em;
+  max-width: 25em;
 }
 
 #name-input {
@@ -84,7 +90,7 @@ p {
 
 #name-form-name {
   margin: 0.5em 0 0 0;
-  font-size: 20px;
+  font-size: 15px;
   float: left
 }
 
@@ -93,7 +99,7 @@ p {
   border: none;
   color: white;
   float: right;
-  font-size: 25px;
+  font-size: 20px;
   font-weight: lighter;
   margin-top: 3px;
 }
@@ -115,6 +121,8 @@ p {
 }
 
 #seerform {
+  display: flex;
+  flex-direction: column;
   padding: 2em;
   width: 100%;
   box-sizing: border-box;
@@ -134,7 +142,7 @@ p {
   box-sizing: border-box;
 }
 
-#villagers-win-box, #werewolves-win-box {
+#villagers-win-box, #werewolves-win-box, #werewolf-turn-box, #seer-turn-box, #starting-turn-box {
   padding: 3em;
   color: white;
   background-color: #0f2943;
@@ -212,7 +220,7 @@ input[type="radio"] {
   text-align: center;
   box-sizing: border-box;
   padding: 3em;
-  margin-top: 12em;
+  margin-top: 10em;
 }
 
 #inner-player-list > ul {
