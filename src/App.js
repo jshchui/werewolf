@@ -271,18 +271,14 @@ class App extends Component {
   renderVotesOnPlayers = (players, phase) => {
     return Object.keys(players).map((playerID, index) => {
       if(phase === 'werewolf') {
-        if(players[playerID].role === 'Werewolf') {
-          if(players[playerID].isAlive === true) {
-            if(players[playerID].currentAction === 'confirmed-vote') {
-              return (
-                <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has Locked In <span className="confirmed">{players[playerID].selectedPerson}</span></h3>
-              )
-            } else {
-              return (
-                <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has selected <span className="selecting">{players[playerID].selectedPerson || 'no-one'}</span></h3>
-              )
-            }
-          }
+        if(players[playerID].role === 'Werewolf' && players[playerID].isAlive === true && players[playerID].currentAction === 'confirmed-vote') {
+          return (
+            <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has Locked In <span className="confirmed">{players[playerID].selectedPerson}</span></h3>
+          )
+        } else {
+          return (
+            <h3 className="voteOnPlayers">{this.state.players[playerID].alias} has selected <span className="selecting">{players[playerID].selectedPerson || 'no-one'}</span></h3>
+          )
         }
       } else {
         if(players[playerID].isAlive === true) {
