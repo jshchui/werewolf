@@ -224,16 +224,21 @@ const countDownInterval = (gameSettings, nextState, countDownTime) => {
 const killMostVotedPlayer = (playerSettingsFirebaseObject) => {
   let mostVotedPlayer = 0;
   let mostVotes = 0;
+  let noOneDies = false;
 
   playerSettingsFirebaseObject.once('value', snap => {
     let players = snap.val()
     Object.keys(players).map((playerID) => {
-      if(players[playerID].votes > mostVotes) {
+      let votesForPlayer = players[playerID].votes
+      if(votesForPlayer > mostVotes) {
         mostVotes = players[playerID].votes
         mostVotedPlayer = playerID
+        noOneDies = false
       }
+      else if(votesForPlayer === mostVotedPlayer){}
+      noOneDies = true
     })
-    if(mostVotedPlayer != 0) {
+    if(mostVotedPlayer != 0 && noOneDies === false) {
       playerSettingsFirebaseObject.child(mostVotedPlayer).child('isAlive').set('recentlyDead');
       playerSettingsFirebaseObject.child(mostVotedPlayer).child('votes').set(0);
     }
