@@ -343,7 +343,7 @@ class App extends Component {
           </div>
         )
       } else {
-        return null;
+        return 'fun-stuff';
       }
     })
 
@@ -537,7 +537,8 @@ class App extends Component {
 
           <div id="death-alert">
             <div id="death-alert-box">
-              <h2>{this.renderDeadPlayers(this.state.players)}</h2>
+              <h2>{this.renderDeadPlayers(this.state.players).indexOf((element) => element == 'fun-stuff') ? 'fun is here!' : 'nofun'}</h2>
+              {/* <h2>{this.renderDeadPlayers(this.state.players)}</h2> */}
             </div>
           </div>
 
