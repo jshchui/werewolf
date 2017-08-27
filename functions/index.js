@@ -2,6 +2,8 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp(functions.config().firebase);
 let lastGameState;
+let nextGameState;
+let interval;
 // exports.startCycle = functions.database.ref('game-settings').onUpdate((event) => {
 //   let cycleLoop;
 //   // if game setting was returned TRUE, THEN RUN BELOW

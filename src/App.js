@@ -10,6 +10,7 @@ import moon from './moon.png';
 import sun from './sun.png';
 import wolf_white from './wolf_white.png';
 import wolf_line from './wolf_line.png';
+import wolf_line_grey from './wolf_line_grey.png';
 
 
 
@@ -342,10 +343,11 @@ class App extends Component {
             <p>{this.state.players[playerID].alias} was a {this.state.players[playerID].role}</p>
           </div>
         )
-      } else {
-        return 'fun-stuff';
       }
-    })
+      // else {
+      //   return 'funstuff';
+      // }
+  })
 
     // if()
   }
@@ -497,7 +499,7 @@ class App extends Component {
         <div id="overlapping-components">
 
           <div id="name-form-screen">
-            <img className='wolf_picture' src={wolf_line} alt='wolf' />
+            <img className='wolf_picture' src={wolf_line_grey} alt='wolf' />
             <form id="name-form" onSubmit={this.setName}>
               <input id="name-input" type="text"
                 name="name"
@@ -537,8 +539,14 @@ class App extends Component {
 
           <div id="death-alert">
             <div id="death-alert-box">
-              <h2>{this.renderDeadPlayers(this.state.players).indexOf((element) => element == 'fun-stuff') ? 'fun is here!' : 'nofun'}</h2>
+              {console.log('Has Object', this.renderDeadPlayers(this.state.players).includes(Object))}
+              {console.log('this.renderDeadPlayers(this.state.players)', this.renderDeadPlayers(this.state.players))}
+              {/* <h2>{this.renderDeadPlayers(this.state.players).indexOf(`was found dead on the floor`) === -1 ? 'Nobody Died!' : this.renderDeadPlayers(this.state.players) }</h2> */}
+              <h2>{this.renderDeadPlayers(this.state.players).indexOf(Object) ? this.renderDeadPlayers(this.state.players) : 'Nobody died this round!' }</h2>
+              {/* <h2>{this.renderDeadPlayers(this.state.players).indexOf((element) => element === 'funstuff') ? this.renderDeadPlayers(this.state.players) : 'Nobody Dead!' }</h2> */}
+              {/* <h2>{this.renderDeadPlayers(this.state.players).indexOf((element) => element.length === 'funstuff').length === this.state.players.length ? 'Nobody Dead' : this.renderDeadPlayers(this.state.players)}</h2> */}
               {/* <h2>{this.renderDeadPlayers(this.state.players)}</h2> */}
+              {/* arr.indexOf(this.renderDeadPlayers(this.state.players)) !== -1 */}
             </div>
           </div>
 
@@ -586,7 +594,6 @@ class App extends Component {
             </div>
           </div> */}
         </div>
-
 
         <div className="announcer" onClick={this.toggleNav}>
 

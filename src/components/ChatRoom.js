@@ -97,9 +97,9 @@ class ChatRoom extends Component {
           lastMessageId = message.playerId;
           return (
             <div>
-              <h3 className="user-name-you">{ message.player }: </h3>
               <div className="single-message-self">
                 <div className="single-message-container">
+                  <h3 className="user-name-you">{ message.player }: </h3>
                   <p key={message.id}>
                     {message.text}
                   </p>
@@ -124,9 +124,9 @@ class ChatRoom extends Component {
           lastMessageId = message.playerId;
           return (
             <div key={i}>
-              <h3 className="user-name">{ message.player }: </h3>
-              <div className="single-message">
+              <div className="single-message new-user-spacing">
                 <div className="single-message-container">
+                  <h3 className="user-name">{ message.player }: </h3>
                   <p key={message.id}>
                     {message.text}
                   </p>

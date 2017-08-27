@@ -22,7 +22,7 @@ h2 {
   color: white;
   text-transform: uppercase;
   font-weight: lighter;
-  margin: 0.25em;
+  /*margin: 0.25em;*/
 }
 
 h3 {
@@ -32,7 +32,7 @@ h3 {
 
 p {
   color: white;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 #voting-form-outer, #seer-form-outer, #death-alert, #lynch-form-outer, #werewolves-win, #villagers-win, #werewolf-turn, #seer-turn, #starting-turn {
@@ -42,7 +42,7 @@ p {
   height: 100vh;
   bottom: 0;
   z-index: 5;
-  background-color: #0f2943;
+  background-color: #1E1E1E;
 
   /*height: calc(100vh - 70px);*/
   justify-content: center;
@@ -63,7 +63,7 @@ p {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background:url(../images/background.jpg);
+  background:url(../images/background2.jpg);
 }
 
 .wolf_picture {
@@ -81,7 +81,7 @@ p {
   width: 100%;
   border-style: none;
   background-color: transparent;
-  border-bottom: solid thin white;
+  border-bottom: solid thin #666666;
   color: white;
   height: 30px;
   text-align: center;
@@ -91,13 +91,14 @@ p {
 #name-form-name {
   margin: 0.5em 0 0 0;
   font-size: 15px;
-  float: left
+  float: left;
+  color: #666666;
 }
 
 #name-submit {
   background-color: transparent;
   border: none;
-  color: white;
+  color: #666666;
   float: right;
   font-size: 20px;
   font-weight: lighter;
@@ -145,7 +146,7 @@ p {
 #villagers-win-box, #werewolves-win-box, #werewolf-turn-box, #seer-turn-box, #starting-turn-box {
   padding: 3em;
   color: white;
-  background-color: #0f2943;
+  background-color: #1E1E1E;
 }
 
 .vote_selections {
@@ -156,10 +157,10 @@ p {
 label {
   color: white;
   border: solid thin white;
-  padding: 1em 2em;
+  padding: 0.5em 0.5em;
   width: 85%;
   display: inline-block;
-  margin: 0.5em 0;
+  margin: 0.25em 0;
   transition: 0.4s all;
   box-sizing: border-box
 }
@@ -204,7 +205,7 @@ input[type="radio"] {
 #player-list {
   float: left;
   /*background-color: #262626;*/
-  background-color: #0f2943;
+  background-color: #1E1E1E;
 
 
   width: 20%;
@@ -219,8 +220,8 @@ input[type="radio"] {
 #inner-player-list {
   text-align: center;
   box-sizing: border-box;
-  padding: 3em;
-  margin-top: 10em;
+  /*padding: 3em;*/
+  margin-top: 15em;
 }
 
 #inner-player-list > ul {
@@ -228,30 +229,50 @@ input[type="radio"] {
   padding-left: 0;
   list-style-type: none;
   font-size: 1em;
+  margin: 0;
 }
 
 .AliveList {
   color: green;
-  margin-top: 1em;
+  padding-bottom: 0.5em;
+  border-bottom: solid green;
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: bold;
+  font-size: 16px
+
+
 }
 
 .DeadList {
   color: red;
-  margin-top: 1em;
+  padding-bottom: 0.5em;
+  border-bottom: solid red;
+  margin: 0;
+  margin-top: 2em;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: bold;
+  font-size: 16px
+
 }
 
 .playersInList {
   padding: 0.5em;
 }
 
+.playersInList:nth-child(odd) {
+  background-color: #333333;
+}
+
 .highlight {
-  border: thin solid white;
+  border-left: solid white;
   /*background: linear-gradient(to right, #04002A, #005254);*/
 }
 
 .ready-highlight {
   transition: all 0.4s;
-  background-color: green;
+  border-right: solid green 100px;
+  background-color: green !important;
 }
 
 .announcer {
@@ -268,7 +289,7 @@ input[type="radio"] {
   box-sizing: border-box;
   padding: 1em 0.5em;
 
-  background-color: #0f2943
+  background-color: #1E1E1E;
 
   /*background-color: lightblue;*/
   /*background: linear-gradient(to right, #04002A, #005254);*/
@@ -329,7 +350,7 @@ input[type="radio"] {
   position: relative;
   overflow: auto;
   /*background-color: #343434;*/
-  background:url(../images/background.jpg);
+  background:url(../images/background2.jpg);
   background-size: cover;
   background-position: center;
 }
@@ -357,9 +378,8 @@ input[type="radio"] {
 }
 
 .message-submitted {
-  padding: 0 2em;
+  padding: 0 2em 2.7em 2em;
   word-break: break-all;
-  padding-bottom: 2em;
 }
 
 .message-form {
@@ -370,11 +390,12 @@ input[type="radio"] {
 }
 
 .message-input {
-  background-color: #464646;
+  background-color: #1E1E1E;
   border-style: none;
   display: flex;
   width: 100%;
-  padding: 0.5em;
+  height: 50px;
+  padding: 0 2em;
 }
 
 .message-submit {
@@ -391,22 +412,27 @@ input[type="radio"] {
   position: absolute;
   width: 100%;
   bottom: 0;
-  padding-bottom: 2em;
+  /*padding-bottom: 2em;*/
 }
 
 .ready-button {
   border-style: none;
   padding: 1em 5em;
-  color: white;
+  color: #464646;
+  width: 100%;
   text-transform: uppercase;
   font-size: 1em;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: bold;
   transition: 0.4s all;
-  background-color: #04002A;
+  background-color: #bbbbbb;
+  /*background-color: #04002A;*/
   /*background: linear-gradient(to right, #04002A, #005254);*/
 }
 
 .ready-button:hover {
-  background-color: #005254;
+  /*background-color: #005254;*/
+  background-color: white;
   /*background: linear-gradient(to right, red, blue);*/
 }
 
@@ -424,7 +450,8 @@ input[type="radio"] {
 
 .single-message-self > .single-message-container {
   float: left;
-  background-color: #0f2943;
+  /*background-color: #0f2943;*/
+  background-color: #525252;
   padding: 0 1em;
   margin-top: 0.25em;
   border-radius: 0.5em;
@@ -432,7 +459,7 @@ input[type="radio"] {
 
 .single-message-container {
   float: left;
-  background-color: #005254;
+  background-color: #333333;
   padding: 0 1em;
   margin-top: 0.25em;
   border-radius: 0.5em;
@@ -442,29 +469,39 @@ input[type="radio"] {
   margin-top: 0.2em !important;
 }
 
+.new-user-spacing {
+  margin-top: 1em;
+}
+
 .user-name{
-  color: #c32929;
+  color: white;
+  /*color: #c32929;*/
   min-width: 75px;
   text-transform: uppercase;
   font-weight: bold;
   letter-spacing: 1px;
   flex-shrink: 0;
-  margin-top: 1.5em;
+  margin-top: 1em;
+  margin-left: 0;
   margin-bottom: 0;
   text-align:left;
+  font-size: 13px;
 }
 
 
 .user-name-you {
-  color: green;
+  color: white;
   min-width: 75px;
   text-transform: uppercase;
   font-weight: bold;
   letter-spacing: 1px;
   flex-shrink: 0;
-  margin-top: 1.5em;
+  margin-top: 1em;
+  margin-right: 0;
   margin-bottom: 0;
   text-align:right;
+  font-size: 13px;
+
 }
 
 #killSwitch {
@@ -484,15 +521,27 @@ input[type="radio"] {
     position: absolute;
     /*transform: translateX(-300px);*/
     transition: 0.4s all;
-    width: 65%;
-    max-width: 550px;
+    width: 100%;
+    /*max-width: 550px;*/
 
   }
 
   .announcer {
-    width: 65%;
+    height: 68px;
+    width: 100%;
+    top: 0;
+    flex-direction: row;
     left: initial;
-    max-width: 550px;
+    /*max-width: 550px;*/
+  }
+
+  .sun-moon {
+    margin-right: 5%;
+    max-width: 50px;
+  }
+
+  #timer {
+    margin-right: 5%;
   }
 
   .show {
@@ -520,6 +569,10 @@ input[type="radio"] {
     font-size:1.1em;
     margin: 0.25em;
 
+  }
+
+  #inner-player-list {
+    margin-top: 6em;
   }
 
   #inner-player-list > ul {

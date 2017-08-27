@@ -18,7 +18,7 @@ export default function(db) {
               ready: false,
               votes: 0,
               isAlive: true,
-              role: 'notAssigned'
+              role: 'Not Assigned'
             });
           }
         })
