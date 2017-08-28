@@ -34,14 +34,11 @@ class App extends Component {
       countDown: 0
     };
 
-    this.handleChange = this.handleChange.bind(this);
-    this.setName = this.setName.bind(this);
   }
 
   setupGame() {
     const id = Math.floor(Date.now()).toString();
-    // const alias = prompt('What is your alias') || `Person ${id.toString().slice(-2)}`;
-    const alias = this.state.alias;
+    const alias = this.state.alias || `Person ${id.toString().slice(-2)}`;
 
     const rootRef = firebase.database().ref();
     const presenceRef = rootRef.child('presence');
@@ -100,6 +97,10 @@ class App extends Component {
               ready: false,
               votes: 0
             })
+
+            this.setState({
+              nightTime : true
+            })
           }
 
           if(gameSettings.gameState === "Werewolf-Phase" && thisPlayer.isAlive ) {
@@ -142,6 +143,8 @@ class App extends Component {
           } else if (gameSettings.gameState === "Day-Death-Phase") {
             this.formShow('death-alert')
             this.formHide('lynch-form-outer');
+            this.clearThisPlayerAction(presenceRef);
+
 
             document.getElementById('killButton').disabled = false;
             document.getElementById('lynchButton').disabled = false;
@@ -215,21 +218,21 @@ class App extends Component {
     document.getElementById('lynchButton').disabled = true;
 
     //Voting options hiding dont delete =========================================
-    // const votingOptions = event.target.querySelectorAll('input[type="radio"]')
-    // let hiddenOptions = []
+    const votingOptions = event.target.querySelectorAll('input[type="radio"]')
+    let hiddenOptions = []
 
-    // votingOptions.forEach(player => {
-    //   let currentPlayer = player.nextSibling
-    //
-    //   if (player.id !== playerID) {
-    //     currentPlayer.style.display = 'none'
-    //     hiddenOptions.push(currentPlayer)
-    //   }
-    // })
+    votingOptions.forEach(player => {
+      let currentPlayer = player.nextSibling
 
-    // setTimeout(() => {
-    //   hiddenOptions.forEach(player => player.style.display = 'inline-block')
-    // }, 3000)
+      if (player.id !== playerID) {
+        currentPlayer.style.display = 'none'
+        hiddenOptions.push(currentPlayer)
+      }
+    })
+
+    setTimeout(() => {
+      hiddenOptions.forEach(player => player.style.display = 'inline-block')
+    }, 13000)
     // ===========================================================================
     firebase.database().ref().child('presence').child(playerID).child('votes')
     .once('value', snap => {
@@ -243,7 +246,7 @@ class App extends Component {
 
   inspect = (event) => {
     event.preventDefault();
-    let playerID = this.state.selectedOption
+    let playerID = this.state.selectedOption;
 
     document.getElementById('inspectButton').disabled = true;
 
@@ -347,9 +350,7 @@ class App extends Component {
       // else {
       //   return 'funstuff';
       // }
-  })
-
-    // if()
+    })
   }
 
   voteFormToggle = () => {
@@ -360,7 +361,7 @@ class App extends Component {
     //   formStatus.style.display = 'none';
     // }
 
-    document.getElementById('seer-form-outer').classList.toggle("appear");
+    document.getElementById('voting-form-outer').classList.toggle("appear");
   }
 
 
@@ -386,24 +387,18 @@ class App extends Component {
 
   countDownTimer = () => {
     this.clearCountDownInterval()
-
     let endTime = typeof(this.state.endTime) != 'undefined' ? this.state.endTime : 0
-
     let countDownAmount = endTime - Date.now();
-
     let currentCount = Math.floor(countDownAmount / 1000);
 
     if (isNaN(currentCount)) {
       debugger
     }
-    // console.log(currentCount)
-    // debugger
+
     this.setState({
       countDown: currentCount
     })
     // countDown: currentCount > 0 ? currentCount : 77
-
-    // let int = null
     let int = setInterval(() => {
       if(currentCount > 0) {
         currentCount -= 1;
@@ -429,20 +424,24 @@ class App extends Component {
     })
   }
 
-  setName(event) {
+  setName =(event) => {
     event.preventDefault();
     document.getElementById('name-form-screen').style.display = 'none';
     this.setupGame()
   }
 
-  handleChange(event) {
+  handleChange = (event) => {
     this.setState({alias: event.target.value})
   }
 
-  render() {
-    // let Timer = null; //Timer is for rendering out the timer below
-    // Timer = <h3> Game Starting in: {this.state.currentTime} </h3>;
+  forcePhaseChange = () => {
+    if(this.state.alias.length === 10) {
+      firebase.database().ref().child('game-settings').child('gameState').set('skipToNextPhase');
+    }
+  }
 
+
+  render() {
     let InspectedPlayer = null
     if(this.state.inspected != null) {
       InspectedPlayer = <p>That person is a {this.state.inspected}</p>
@@ -515,7 +514,7 @@ class App extends Component {
           <div id="voting-form-outer">
             {this.renderVotesOnPlayers(this.state.players, 'werewolf')}
             <form id="votingform" onSubmit={this.setVote}>
-              <h2>Choose a person that deserves a claw in the face</h2>
+              <h2>Claw Someone</h2>
               <div>
                 {votingPlayers}
               </div>
@@ -580,8 +579,6 @@ class App extends Component {
             </div>
           </div>
 
-
-
           {/* <div id="werewolves-win">
             <div id="werewolves-win-box">
               <h2>The werewolves win!</h2>
@@ -598,16 +595,12 @@ class App extends Component {
         <div className="announcer" onClick={this.toggleNav}>
 
 
-          {/* <img className='sun-moon' src={moon} /> */}
           {sunOrMoon}
 
           <span id='timer'>{(this.state.countDown >= 0) ? this.state.countDown : 0}</span>
           <h2>{this.state.gameStatus}</h2>
         </div>
         <div className="show" id="player-list">
-          {/* <h1>{this.state.gameStatus} - </h1>
-          <h1>&nbsp;{this.state.countDown}</h1> */}
-
           <PlayerList players={this.state.players} setVote={this.votedPlayerID} thisPlayer={this.state.thisplayerID}/>
           {/* <button onClick={this.countDownTimer}>Start Timer</button> */}
           {/* <button onClick={this.clearCountDownInterval}>Clear Timer Interval</button> */}
@@ -623,11 +616,9 @@ class App extends Component {
 
 
         <ChatRoom player={this.state.alias} playerId={this.state.thisplayerID} />
-        {/* <button className="hamburger" onClick={this.voteFormToggle}>
+        <button className="hamburger" onClick={this.forcePhaseChange}>
           <span></span>
-          <span></span>
-          <span></span>
-        </button> */}
+        </button>
       </div>
     );
   }

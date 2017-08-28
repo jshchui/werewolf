@@ -4,6 +4,7 @@ admin.initializeApp(functions.config().firebase);
 let lastGameState;
 let nextGameState;
 let interval;
+let werewolfTurn = false;
 // exports.startCycle = functions.database.ref('game-settings').onUpdate((event) => {
 //   let cycleLoop;
 //   // if game setting was returned TRUE, THEN RUN BELOW
@@ -104,15 +105,23 @@ exports.startGame = functions.database.ref('presence').onUpdate((event) => {
     event.data.ref.parent.child('game-settings').child('gameState').once('value', snap => {
       const gameState = snap.val();
       if (allReady && (gameState == 'game-ended' || 'villagers-win' || 'werewolves-win')) {
+        clearInterval(interval)
         return event.data.ref.parent.child('game-settings').set({
           gameState: "all-ready",
         });
+      // } else if (gameState == 'skipToNextPhase') {
+      //   clearInterval(interval)
+      //   return event.data.ref.parent.child('game-settings').set({
+      //     gameState: nextGameState
+      //   })
       } else {
         return null;
       }
     })
+
   });
 });
+
 
 exports.gameStateListener = functions.database.ref('game-settings').onUpdate((event) => {
   const gameSettings = event.data.val()
@@ -124,35 +133,40 @@ exports.gameStateListener = functions.database.ref('game-settings').onUpdate((ev
       switch(gameSettings.gameState) {
         case "all-ready":
           assignRole(playerSettingsFirebaseObject)
-          countDownInterval(gameSettingsFirebaseObject, 'Werewolf-Phase', 8)
+          countDownInterval(gameSettingsFirebaseObject, 'Werewolf-Phase', 14)
           break;
         case "Werewolf-Phase":
           // checkWinCondition(playerSettingsFirebaseObject, gameSettingsFirebaseObject)
           setIsAliveFalse(playerSettingsFirebaseObject);
-          countDownInterval(gameSettingsFirebaseObject, 'Seer-Phase', 10)
+          countDownInterval(gameSettingsFirebaseObject, 'Seer-Phase', 16)
+          werewolfTurn = true;
           break;
         case "Seer-Phase":
-          countDownInterval(gameSettingsFirebaseObject, 'Night-Death-Phase', 10)
+          countDownInterval(gameSettingsFirebaseObject, 'Night-Death-Phase', 16)
           break;
         case "Night-Death-Phase":
-          killMostVotedPlayer(playerSettingsFirebaseObject)
-          countDownInterval(gameSettingsFirebaseObject, 'Day-Phase', 6)
+          killMostVotedPlayer(playerSettingsFirebaseObject, gameSettingsFirebaseObject)
+          countDownInterval(gameSettingsFirebaseObject, 'Day-Phase', 12)
           break;
         case "Day-Phase":
           setIsAliveFalse(playerSettingsFirebaseObject);
-          countDownInterval(gameSettingsFirebaseObject, 'Lynch-Phase', 10)
+          countDownInterval(gameSettingsFirebaseObject, 'Lynch-Phase', 180)
+          werewolfTurn = false
           break;
         case "Lynch-Phase":
-          countDownInterval(gameSettingsFirebaseObject, 'Day-Death-Phase', 10)
+          countDownInterval(gameSettingsFirebaseObject, 'Day-Death-Phase', 23)
           break;
         case "Day-Death-Phase":
           killMostVotedPlayer(playerSettingsFirebaseObject)
           // countDownInterval(gameSettingsFirebaseObject, 'Werewolf-Phase', 5)
-          countDownInterval(gameSettingsFirebaseObject, 'Check-Win', 6)
+          countDownInterval(gameSettingsFirebaseObject, 'Check-Win', 12)
           break;
         case "Check-Win":
           checkWinCondition(playerSettingsFirebaseObject, gameSettingsFirebaseObject)
           countDownInterval(gameSettingsFirebaseObject, 'Werewolf-Phase', 0.5)
+          break;
+        case "skipToNextPhase":
+          countDownInterval(gameSettingsFirebaseObject, nextGameState, 0.5)
           break;
       }
       lastGameState = gameSettings.gameState
@@ -185,18 +199,20 @@ exports.gameStateListener = functions.database.ref('game-settings').onUpdate((ev
 
 // kill switch check at end of countdown
 const countDownInterval = (gameSettings, nextState, countDownTime) => {
+  console.log('clearing Interval through StartCountDown')
+  clearInterval(interval)
   let endTime = Date.now() + (countDownTime * 1000)
   let currentCountdown = countDownTime
   let currentGameState = null;
+  nextGameState = nextState;
 
   gameSettings.child('endTime').set(endTime)
 
-  const int = setInterval(() => {
+  interval = setInterval(() => {
       if(currentCountdown > 0) {
         currentCountdown -= 1;
         // gameSettings.child('currentCounter').set(currentCountdown)
       } else {
-
         // exports.gameStateListenerTest = functions.database.ref('game-settings').onUpdate((event) => {
         //   const gameSettings = event.data.val()
         //   const gameSettingsFirebaseObject = event.data.ref.parent.child('game-settings')
@@ -211,19 +227,31 @@ const countDownInterval = (gameSettings, nextState, countDownTime) => {
           currentGameState = snap.val();
           if(currentGameState != "game-ended" && currentGameState != "werewolves-win" && currentGameState != "villagers-win") {
             gameSettings.set({
-              gameState: nextState
+              gameState: nextGameState
               // currentCounter: 0
             })
           }
         })
-        return clearInterval(int)
+        console.log('clearing Interval through Timeout')
+
+        return clearInterval(interval)
       }
   }, 1000)
 }
 
-const killMostVotedPlayer = (playerSettingsFirebaseObject) => {
+const killMostVotedPlayer = (playerSettingsFirebaseObject, gameSettingsFirebaseObject) => {
   let mostVotedPlayer = 0;
   let mostVotes = 0;
+  let votesTied = false;
+  let werewolvesTurn = false;
+
+  // gameSettingsFirebaseObject.once('value', snap=> {
+  //   gameSettings = snap.val()
+  //
+  //   if (gameSettings.gameState === 'Werewolf-Phase') {
+  //     werewolvesTurn = true;
+  //   }
+  // })
 
   playerSettingsFirebaseObject.once('value', snap => {
     let players = snap.val()
@@ -231,11 +259,18 @@ const killMostVotedPlayer = (playerSettingsFirebaseObject) => {
       if(players[playerID].votes > mostVotes) {
         mostVotes = players[playerID].votes
         mostVotedPlayer = playerID
+        votesTied = false;
+      } else if (players[playerID].votes === mostVotes && werewolfTurn === false) {
+        votesTied = true;
       }
     })
-    if(mostVotedPlayer != 0) {
+
+    if(mostVotedPlayer !== 0 && votesTied === false) {
       playerSettingsFirebaseObject.child(mostVotedPlayer).child('isAlive').set('recentlyDead');
-      playerSettingsFirebaseObject.child(mostVotedPlayer).child('votes').set(0);
+      // playerSettingsFirebaseObject.child(mostVotedPlayer).child('votes').set(0);
+      Object.keys(players).map((playerID) => {
+        playerSettingsFirebaseObject.child(playerID).child('votes').set(0);
+      })
     }
   })
 }
