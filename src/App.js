@@ -598,7 +598,7 @@ class App extends Component {
           {sunOrMoon}
 
           <span id='timer'>{(this.state.countDown >= 0) ? this.state.countDown : 0}</span>
-          <h2>{this.state.gameStatus}</h2>
+          <h2 id='phase-shower'>{this.state.gameStatus}</h2>
         </div>
         <div className="show" id="player-list">
           <PlayerList players={this.state.players} setVote={this.votedPlayerID} thisPlayer={this.state.thisplayerID}/>
@@ -607,8 +607,7 @@ class App extends Component {
           {/* <button onClick={this.killSwitch}>Kill Switch</button> */}
 
           <div className="ready-role">
-            <p>Role:</p>
-            <h3>{this.state.thisplayerRole}</h3>
+            <h3>Role: {this.state.thisplayerRole}</h3>
             <Role onReadyUp={()=>this.onReadyUp(this.state.players)} />
           </div>
         </div>

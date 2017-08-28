@@ -77,6 +77,10 @@ p {
   max-width: 25em;
 }
 
+#name-form input:focus {
+  color: #666666
+}
+
 #name-input {
   width: 100%;
   border-style: none;
@@ -234,9 +238,9 @@ input[type="radio"] {
 }
 
 .AliveList {
-  color: green;
+  color: #558B2F;
   padding-bottom: 0.5em;
-  border-bottom: solid green;
+  border-bottom: solid #558B2F;
   margin: 0;
   font-family: 'Montserrat', sans-serif;
   font-weight: bold;
@@ -246,9 +250,9 @@ input[type="radio"] {
 }
 
 .DeadList {
-  color: red;
+  color: #C62828;
   padding-bottom: 0.5em;
-  border-bottom: solid red;
+  border-bottom: solid #C62828;
   margin: 0;
   margin-top: 2em;
   font-family: 'Montserrat', sans-serif;
@@ -266,14 +270,15 @@ input[type="radio"] {
 }
 
 .highlight {
-  border-left: solid white;
+  border-left: solid white 4px;
+
   /*background: linear-gradient(to right, #04002A, #005254);*/
 }
 
 .ready-highlight {
   transition: all 0.4s;
-  border-right: solid green 100px;
-  background-color: green !important;
+  border-right: solid #558B2F 40px;
+  background-color: #558B2F !important;
 }
 
 .announcer {
@@ -301,6 +306,10 @@ input[type="radio"] {
   color: white;
   font-size: 36px;
   font-weight: 500;
+}
+
+#phase-shower {
+  margin: 0.25em;
 }
 
 .sun-moon {
@@ -368,8 +377,7 @@ input[type="radio"] {
 
 #chatRoom-container::-webkit-scrollbar-thumb
 {
-  border-radius: 5px;
-  background: linear-gradient(#005254, #04002A);
+  background-color: rgba(151, 151, 151, 0.3);
 }
 
 .chatRoom-inner-container {
@@ -379,8 +387,9 @@ input[type="radio"] {
 }
 
 .message-submitted {
-  padding: 0 2em 2.7em 2em;
+  padding: 0 2em 3.5em 2em;
   word-break: break-all;
+  margin-top: 5em;
 }
 
 .message-form {
@@ -388,6 +397,10 @@ input[type="radio"] {
   bottom: 0;
   width: 80%;
   position: fixed;
+}
+
+.message-form input:focus {
+  color: white;
 }
 
 .message-input {
@@ -455,7 +468,7 @@ input[type="radio"] {
   background-color: #525252;
   padding: 0 1em;
   margin-top: 0.25em;
-  border-radius: 0.5em;
+  border-radius: 1em;
 }
 
 .single-message-container {
@@ -463,7 +476,7 @@ input[type="radio"] {
   background-color: #333333;
   padding: 0 1em;
   margin-top: 0.25em;
-  border-radius: 0.5em;
+  border-radius: 1em;
 }
 
 .cancel-margin {
