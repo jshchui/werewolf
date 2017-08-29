@@ -134,6 +134,7 @@ exports.gameStateListener = functions.database.ref('game-settings').onUpdate((ev
         case "all-ready":
           assignRole(playerSettingsFirebaseObject)
           countDownInterval(gameSettingsFirebaseObject, 'Werewolf-Phase', 14)
+          // clearMessages(event.data.ref.parent.child('messages'))
           break;
         case "Werewolf-Phase":
           // checkWinCondition(playerSettingsFirebaseObject, gameSettingsFirebaseObject)
@@ -209,6 +210,10 @@ const skipPhase = (gameSettings, nextState) => {
   // })
 }
 
+const clearMessages = (messagesRef) => {
+  messagesRef.remove()
+}
+
 // kill switch check at end of countdown
 const countDownInterval = (gameSettings, nextState, countDownTime) => {
   clearInterval(interval)
@@ -225,7 +230,6 @@ const countDownInterval = (gameSettings, nextState, countDownTime) => {
     } else {
       gameSettings.child('gameState').once('value', snap => {
         currentGameState = snap.val();
-        // if(currentGameState != "game-ended" && currentGameState != "werewolves-win" && currentGameState != "villagers-win") {
         if(currentGameState != "game-ended") {
           gameSettings.set({
             gameState: nextGameState

@@ -31,8 +31,6 @@ class ChatRoom extends Component {
 
       elem.scrollTop = elem.scrollHeight;
     })
-
-    console.log('chatroom-connected');
   }
 
   updateMessage(event) {

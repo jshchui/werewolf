@@ -67,6 +67,7 @@ class App extends Component {
       })
     })
 
+
     presenceRef.child(id).child('isAlive').on('value', snap => {
       let isAlive = snap.val()
       this.setState({
@@ -90,6 +91,7 @@ class App extends Component {
 
 
           if(gameSettings.gameState === "all-ready") {
+            this.formHide('you-are-dead')
             this.formShow('starting-turn')
             console.log('reset');
             presenceRef.child(id).update({
@@ -128,6 +130,7 @@ class App extends Component {
             this.formHide('werewolf-turn')
             this.clearThisPlayerAction(presenceRef);
 
+
             //Set state inspected here for seer logic
             this.setState({
               inspected: null,
@@ -144,7 +147,6 @@ class App extends Component {
             this.formShow('death-alert')
             this.formHide('lynch-form-outer');
             this.clearThisPlayerAction(presenceRef);
-
 
             document.getElementById('killButton').disabled = false;
             document.getElementById('lynchButton').disabled = false;
@@ -167,6 +169,7 @@ class App extends Component {
             this.formHide('seer-turn');
             this.formHide('werewolf-turn');
 
+            this.checkDeath();
 
             if(thisPlayer.ready === true) {
               presenceRef.child(id).child('ready').set(false)
@@ -353,13 +356,6 @@ class App extends Component {
 
 
   voteFormToggle = () => {
-    // let formStatus = document.getElementById('lynch-form-outer');
-    // if(formStatus.style.display === 'none') {
-    //   formStatus.style.display = 'flex';
-    // } else {
-    //   formStatus.style.display = 'none';
-    // }
-
     document.getElementById('voting-form-outer').classList.toggle("appear");
   }
 
@@ -387,17 +383,17 @@ class App extends Component {
   countDownTimer = () => {
     this.clearCountDownInterval()
     let endTime = typeof(this.state.endTime) != 'undefined' ? this.state.endTime : 0
+    
     let countDownAmount = endTime - Date.now();
     let currentCount = Math.floor(countDownAmount / 1000);
 
-    if (isNaN(currentCount)) {
-      debugger
-    }
+    // if (isNaN(currentCount)) {
+    //   debugger
+    // }
 
     this.setState({
       countDown: currentCount
     })
-    // countDown: currentCount > 0 ? currentCount : 77
     let int = setInterval(() => {
       if(currentCount > 0) {
         currentCount -= 1;
@@ -439,6 +435,17 @@ class App extends Component {
     }
   }
 
+  checkDeath = () => {
+    console.log('checkDeath Ran');
+    if(this.state.amIAlive !== true) {
+      console.log('show dead screen');
+      this.formShow('you-are-dead')
+    } else {
+      console.log('No dead Sscreen')
+      this.formHide('you-are-dead')
+    }
+  }
+
 
 
   render() {
@@ -463,6 +470,7 @@ class App extends Component {
       inspectBut = <input style={{display: 'none'}} id='inspectButton' type="submit" value="Submit" />
       lynchBut = <input style={{display: 'none'}} id='lynchButton' type="submit" value="Submit" />
     }
+
 
     let sunOrMoon;
 
@@ -497,9 +505,9 @@ class App extends Component {
       <div className="App">
         <div id="overlapping-components">
 
-          <div id="death-alert">
-            <div id="death-alert-box">
-              <h2>{this.renderDeadPlayers(this.state.players).length > 0 ? this.renderDeadPlayers(this.state.players) : 'Nobody died this round!' }</h2>
+          <div id="you-are-dead">
+            <div id="you-are-dead-box">
+              <h2>You are dead</h2>
             </div>
           </div>
 
@@ -543,6 +551,11 @@ class App extends Component {
           </div>
 
           {/*Death Alert*/}
+          <div id="death-alert">
+            <div id="death-alert-box">
+              <h2>{this.renderDeadPlayers(this.state.players).length > 0 ? this.renderDeadPlayers(this.state.players) : 'Nobody died this round!' }</h2>
+            </div>
+          </div>
 
 
           <div id="lynch-form-outer">
