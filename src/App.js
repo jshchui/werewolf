@@ -335,23 +335,22 @@ class App extends Component {
     firebase.database().ref().child('presence').child(this.state.thisplayerID).child('selectedPerson').set(selectedPlayerId.alias);
   }
 
+  //RenderDeadPlayers Goes here
   renderDeadPlayers = (players) => {
-    // let didAnyoneDie = false;
-    return Object.keys(players).map((playerID) => {
+    return Object.keys(players).reduce((deadPlayers, playerID) => {
       if(this.state.players[playerID].isAlive === 'recentlyDead') {
-        // didAnyoneDie = true;
-        return (
+        return [...deadPlayers,
           <div>
             <h3>{this.state.players[playerID].alias} was found dead on the floor</h3>
             <p>{this.state.players[playerID].alias} was a {this.state.players[playerID].role}</p>
           </div>
-        )
+        ]
+      } else {
+        return deadPlayers
       }
-      // else {
-      //   return 'funstuff';
-      // }
-    })
+    }, [])
   }
+
 
   voteFormToggle = () => {
     // let formStatus = document.getElementById('lynch-form-outer');
@@ -441,6 +440,7 @@ class App extends Component {
   }
 
 
+
   render() {
     let InspectedPlayer = null
     if(this.state.inspected != null) {
@@ -497,6 +497,12 @@ class App extends Component {
       <div className="App">
         <div id="overlapping-components">
 
+          <div id="death-alert">
+            <div id="death-alert-box">
+              <h2>{this.renderDeadPlayers(this.state.players).length > 0 ? this.renderDeadPlayers(this.state.players) : 'Nobody died this round!' }</h2>
+            </div>
+          </div>
+
           <div id="name-form-screen">
             <img className='wolf_picture' src={wolf_line_grey} alt='wolf' />
             <form id="name-form" onSubmit={this.setName}>
@@ -536,18 +542,8 @@ class App extends Component {
             </form>
           </div>
 
-          <div id="death-alert">
-            <div id="death-alert-box">
-              {console.log('Has Object', this.renderDeadPlayers(this.state.players).includes(Object))}
-              {console.log('this.renderDeadPlayers(this.state.players)', this.renderDeadPlayers(this.state.players))}
-              {/* <h2>{this.renderDeadPlayers(this.state.players).indexOf(`was found dead on the floor`) === -1 ? 'Nobody Died!' : this.renderDeadPlayers(this.state.players) }</h2> */}
-              <h2>{this.renderDeadPlayers(this.state.players).indexOf(Object) ? this.renderDeadPlayers(this.state.players) : 'Nobody died this round!' }</h2>
-              {/* <h2>{this.renderDeadPlayers(this.state.players).indexOf((element) => element === 'funstuff') ? this.renderDeadPlayers(this.state.players) : 'Nobody Dead!' }</h2> */}
-              {/* <h2>{this.renderDeadPlayers(this.state.players).indexOf((element) => element.length === 'funstuff').length === this.state.players.length ? 'Nobody Dead' : this.renderDeadPlayers(this.state.players)}</h2> */}
-              {/* <h2>{this.renderDeadPlayers(this.state.players)}</h2> */}
-              {/* arr.indexOf(this.renderDeadPlayers(this.state.players)) !== -1 */}
-            </div>
-          </div>
+          {/*Death Alert*/}
+
 
           <div id="lynch-form-outer">
             {this.renderVotesOnPlayers(this.state.players, 'lynch')}

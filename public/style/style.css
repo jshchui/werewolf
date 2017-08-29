@@ -64,6 +64,8 @@ p {
   flex-direction: column;
   height: 100vh;
   background:url(../images/background2.jpg);
+  background-size: cover;
+  background-position: center;
 }
 
 .wolf_picture {
@@ -213,8 +215,9 @@ input[type="radio"] {
   background-color: #1E1E1E;
 
 
-  width: 20%;
-  min-width: 300px;
+  /*width: 20%;*/
+  /*min-width: 300px;*/
+  width: 300px;
   /*height: calc(100vh - 70px);*/
   height: 100vh;
   position: relative;
@@ -282,10 +285,11 @@ input[type="radio"] {
 }
 
 .announcer {
-  min-width: 300px;
+  /*min-width: 300px;*/
+  width: 300px;
   position: absolute;
   top: -10em;
-  width: 20%;
+  /*width: 20%;*/
   left: 0;
   display: flex;
   flex-direction: column;
@@ -355,7 +359,8 @@ input[type="radio"] {
 #chatRoom-container {
   max-width: calc(100% - 300px);
   float: left;
-  width: 80%;
+  /*width: 80%;*/
+  width: 100%;
   height: 100vh;
   position: relative;
   overflow: auto;
@@ -389,13 +394,13 @@ input[type="radio"] {
 .message-submitted {
   padding: 0 2em 3.5em 2em;
   word-break: break-all;
-  margin-top: 5em;
 }
 
 .message-form {
   display:flex;
   bottom: 0;
-  width: 80%;
+  width: 100%;
+  /*width: 80%;*/
   position: fixed;
 }
 
@@ -408,7 +413,7 @@ input[type="radio"] {
   border-style: none;
   display: flex;
   width: 100%;
-  height: 50px;
+  height: 51px;
   padding: 0 2em;
 }
 
@@ -569,6 +574,11 @@ input[type="radio"] {
 
   #lynchform {
     width: 100%;
+  }
+
+  .message-submitted {
+    margin-top: 5em;
+    padding: 0 1em 3.5em 1em;
   }
 
   .message-form {
