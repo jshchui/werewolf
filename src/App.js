@@ -11,6 +11,9 @@ import sun from './sun.png';
 import wolf_white from './wolf_white.png';
 import wolf_line from './wolf_line.png';
 import wolf_line_grey from './wolf_line_grey.png';
+import seer from './seer.png'
+import death from './death2.png'
+import villager from './villager.png'
 
 
 
@@ -383,7 +386,7 @@ class App extends Component {
   countDownTimer = () => {
     this.clearCountDownInterval()
     let endTime = typeof(this.state.endTime) != 'undefined' ? this.state.endTime : 0
-    
+
     let countDownAmount = endTime - Date.now();
     let currentCount = Math.floor(countDownAmount / 1000);
 
@@ -430,9 +433,9 @@ class App extends Component {
   }
 
   forcePhaseChange = () => {
-    if(this.state.alias.length === 10) {
+    // if(this.state.alias.length === 10) {
       firebase.database().ref().child('game-settings').child('gameState').set('skipToNextPhase');
-    }
+    // }
   }
 
   checkDeath = () => {
@@ -445,6 +448,14 @@ class App extends Component {
       this.formHide('you-are-dead')
     }
   }
+
+  onKeyPress = (event) => {
+    console.log('pressing')
+    if(event.key == 'Escape') {
+      this.forcePhaseChange()
+    }
+  }
+
 
 
 
@@ -491,12 +502,14 @@ class App extends Component {
     } else if (this.state.thisplayerRole === 'Seer') {
       roleDisplay =
           <div>
+            <img className='seer_picture' src={seer} alt='sun' />
             <h2>You are the Seer</h2>
             <h3>Inspect a player every night, eliminate all the werewolves</h3>
           </div>
     } else {
       roleDisplay =
       <div>
+        <img className='wolf_picture' src={villager} alt='sun' />
         <h2>You are a Villager</h2>
         <h3>Eliminate all the werewolves</h3>
       </div>
@@ -507,6 +520,8 @@ class App extends Component {
 
           <div id="you-are-dead">
             <div id="you-are-dead-box">
+              <img className='wolf_picture' src={death} alt='sun' />
+
               <h2>You are dead</h2>
             </div>
           </div>
@@ -528,7 +543,7 @@ class App extends Component {
           <div id="voting-form-outer">
             {this.renderVotesOnPlayers(this.state.players, 'werewolf')}
             <form id="votingform" onSubmit={this.setVote}>
-              <h2>Claw Someone</h2>
+              <h2>Choose a player to kill</h2>
               <div>
                 {votingPlayers}
               </div>
@@ -616,17 +631,22 @@ class App extends Component {
           {/* <button onClick={this.killSwitch}>Kill Switch</button> */}
 
           <div className="ready-role">
+            <p>Your Name: {this.state.alias}</p>
             <h3>Role: {this.state.thisplayerRole}</h3>
+
             <Role onReadyUp={()=>this.onReadyUp(this.state.players)} />
           </div>
         </div>
 
 
 
-        <ChatRoom player={this.state.alias} playerId={this.state.thisplayerID} />
+        <ChatRoom onKeyPress={this.onKeyPress} player={this.state.alias} playerId={this.state.thisplayerID} />
         <button className="hamburger" onClick={this.forcePhaseChange}>
           <span></span>
         </button>
+        {/* <button className="hamburger" onClick={this.voteFormToggle}>
+          <span></span>
+        </button> */}
       </div>
     );
   }

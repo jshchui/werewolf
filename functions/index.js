@@ -215,6 +215,7 @@ const clearMessages = (messagesRef) => {
 }
 
 // kill switch check at end of countdown
+//PRESENT
 const countDownInterval = (gameSettings, nextState, countDownTime) => {
   clearInterval(interval)
   let endTime = Date.now() + (countDownTime * 1000)
