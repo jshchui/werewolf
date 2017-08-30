@@ -31,6 +31,21 @@ class ChatRoom extends Component {
 
       elem.scrollTop = elem.scrollHeight;
     })
+
+
+
+    firebase.database().ref().child('game-settings').child('gameState').on('value', (snapshot) => {
+      const gameSettings = snapshot.val()
+      // TO DO, its not clearing
+      if(gameSettings === "all-ready") {
+        console.log(this.state.messages)
+        console.log('all ready, setting messages to be empty')
+        this.setState({
+          messages: []
+        })
+      }
+    })
+
   }
 
   updateMessage(event) {
@@ -41,7 +56,6 @@ class ChatRoom extends Component {
     })
 
     elem.scrollTop = elem.scrollHeight;
-    console.log('new message came');
   }
 
   // I need to get users in here

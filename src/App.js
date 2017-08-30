@@ -26,6 +26,7 @@ class App extends Component {
       players: {},
       alias: '',
       gameStatus: 'unready',
+      gameTitle: 'No game has started',
       thisplayerID: null,
       thisplayerRole: null,
       selectedOption: null,
@@ -82,7 +83,8 @@ class App extends Component {
       const gameSettings = snap.val()
       this.setState({
         endTime: gameSettings.endTime,
-        gameStatus: gameSettings.gameState
+        gameStatus: gameSettings.gameState,
+        gameTitle: gameSettings.stateTitle
       })
 
       this.countDownTimer();
@@ -191,6 +193,10 @@ class App extends Component {
       })
     });
 
+  }
+
+  componentWillMount() {
+    document.addEventListener("keydown", this.onKeyDown);
   }
 
   componentDidMount() {
@@ -362,8 +368,6 @@ class App extends Component {
     document.getElementById('voting-form-outer').classList.toggle("appear");
   }
 
-
-
   toggleNav = () => {
     document.getElementById("player-list").classList.toggle("show");
   }
@@ -449,9 +453,10 @@ class App extends Component {
     }
   }
 
-  onKeyPress = (event) => {
+  onKeyDown = (event) => {
     console.log('pressing')
     if(event.key == 'Escape') {
+      console.log('forcingphasechange')
       this.forcePhaseChange()
     }
   }
@@ -506,16 +511,21 @@ class App extends Component {
             <h2>You are the Seer</h2>
             <h3>Inspect a player every night, eliminate all the werewolves</h3>
           </div>
-    } else {
+    } else if (this.state.thisplayerRole === 'Villager'){
       roleDisplay =
       <div>
         <img className='wolf_picture' src={villager} alt='sun' />
         <h2>You are a Villager</h2>
         <h3>Eliminate all the werewolves</h3>
       </div>
+    } else {
+      roleDisplay =
+      <div>
+        <h2>Selecting your role</h2>
+      </div>
     }
     return (
-      <div className="App">
+      <div className="App" onKeyDown={this.onKeyDown}>
         <div id="overlapping-components">
 
           <div id="you-are-dead">
@@ -547,7 +557,6 @@ class App extends Component {
               <div>
                 {votingPlayers}
               </div>
-              {/* <input id='killButton' type="submit" value="Submit" /> */}
               {killBut}
             </form>
 
@@ -559,13 +568,11 @@ class App extends Component {
               <div>
                 {votingPlayers}
               </div>
-              {/* <input id='inspectButton' type="submit" value="Submit" /> */}
               {inspectBut}
               {InspectedPlayer}
             </form>
           </div>
 
-          {/*Death Alert*/}
           <div id="death-alert">
             <div id="death-alert-box">
               <h2>{this.renderDeadPlayers(this.state.players).length > 0 ? this.renderDeadPlayers(this.state.players) : 'Nobody died this round!' }</h2>
@@ -580,7 +587,6 @@ class App extends Component {
               <div>
                 {votingPlayers}
               </div>
-              {/* <input id='lynchButton' type="submit" value="Submit" /> */}
               {lynchBut}
             </form>
           </div>
@@ -622,7 +628,7 @@ class App extends Component {
           {sunOrMoon}
 
           <span id='timer'>{(this.state.countDown >= 0) ? this.state.countDown : 0}</span>
-          <h2 id='phase-shower'>{this.state.gameStatus}</h2>
+          <h2 id='phase-shower'>{this.state.gameTitle}</h2>
         </div>
         <div className="show" id="player-list">
           <PlayerList players={this.state.players} setVote={this.votedPlayerID} thisPlayer={this.state.thisplayerID}/>
@@ -640,7 +646,7 @@ class App extends Component {
 
 
 
-        <ChatRoom onKeyPress={this.onKeyPress} player={this.state.alias} playerId={this.state.thisplayerID} />
+        <ChatRoom player={this.state.alias} playerId={this.state.thisplayerID} />
         <button className="hamburger" onClick={this.forcePhaseChange}>
           <span></span>
         </button>
