@@ -6,14 +6,14 @@ import ChatRoom from './components/ChatRoom';
 import PlayerList from './components/PlayerList';
 import Role from './components/Role';
 
-import moon from './moon.png';
-import sun from './sun.png';
-import wolf_white from './wolf_white.png';
-import wolf_line from './wolf_line.png';
-import wolf_line_grey from './wolf_line_grey.png';
-import seer from './seer.png'
-import death from './death2.png'
-import villager from './villager.png'
+import moon from './pictures/moon.png';
+import sun from './pictures/sun.png';
+import wolf_white from './pictures/wolf_white.png';
+import wolf_line from './pictures/wolf_line.png';
+import wolf_line_grey from './pictures/wolf_line_grey.png';
+import seer from './pictures/seer.png'
+import death from './pictures/death2.png'
+import villager from './pictures/villager.png'
 
 
 
@@ -121,6 +121,7 @@ class App extends Component {
             }
           } else if (gameSettings.gameState === "Seer-Phase" && thisPlayer.isAlive) {
             this.formHide('werewolf-turn');
+            this.formHide('starting-turn');
 
             if(thisPlayer.role === 'Seer') {
               this.formShow('seer-form-outer');
@@ -133,6 +134,8 @@ class App extends Component {
             this.formHide('voting-form-outer');
             this.formHide('seer-turn')
             this.formHide('werewolf-turn')
+            this.formHide('starting-turn');
+
             this.clearThisPlayerAction(presenceRef);
 
 
@@ -632,9 +635,6 @@ class App extends Component {
         </div>
         <div className="show" id="player-list">
           <PlayerList players={this.state.players} setVote={this.votedPlayerID} thisPlayer={this.state.thisplayerID}/>
-          {/* <button onClick={this.countDownTimer}>Start Timer</button> */}
-          {/* <button onClick={this.clearCountDownInterval}>Clear Timer Interval</button> */}
-          {/* <button onClick={this.killSwitch}>Kill Switch</button> */}
 
           <div className="ready-role">
             <p>Your Name: {this.state.alias}</p>
@@ -644,15 +644,7 @@ class App extends Component {
           </div>
         </div>
 
-
-
         <ChatRoom player={this.state.alias} playerId={this.state.thisplayerID} />
-        <button className="hamburger" onClick={this.forcePhaseChange}>
-          <span></span>
-        </button>
-        {/* <button className="hamburger" onClick={this.voteFormToggle}>
-          <span></span>
-        </button> */}
       </div>
     );
   }

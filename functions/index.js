@@ -140,7 +140,6 @@ exports.gameStateListener = functions.database.ref('game-settings').onUpdate((ev
           clearMessages(event.data.ref.parent.child('messages'))
           break;
         case "Werewolf-Phase":
-          // checkWinCondition(playerSettingsFirebaseObject, gameSettingsFirebaseObject)
           setIsAliveFalse(playerSettingsFirebaseObject);
           countDownInterval(gameSettingsFirebaseObject, 'Seer-Phase', 16, 'Seers Turn')
           werewolfTurn = true;
@@ -162,16 +161,12 @@ exports.gameStateListener = functions.database.ref('game-settings').onUpdate((ev
           break;
         case "Day-Death-Phase":
           killMostVotedPlayer(playerSettingsFirebaseObject)
-          // countDownInterval(gameSettingsFirebaseObject, 'Werewolf-Phase', 5)
           countDownInterval(gameSettingsFirebaseObject, 'Check-Win', 12, 'Who got lynched?')
           break;
         case "Check-Win":
           checkWinCondition(playerSettingsFirebaseObject, gameSettingsFirebaseObject, 'Werewolf-Phase', 'Werewolves Turn')
-          // countDownInterval(gameSettingsFirebaseObject, 'Werewolf-Phase', 0.5)
-          // skipPhase(gameSettingsFirebaseObject, 'Werewolf-Phase')
           break;
         case "skipToNextPhase":
-          // countDownInterval(gameSettingsFirebaseObject, nextGameState, 0.5)
           skipPhase(gameSettingsFirebaseObject, nextGameState, nextStateTitleGlobal)
           break;
       }
@@ -340,7 +335,7 @@ const assignRole = (playerSettingsFirebaseObject) => {
   })
 }
 
-const checkWinCondition = (playerSettingsFirebaseObject, gameSettingsFirebaseObject, nextState) => {
+const checkWinCondition = (playerSettingsFirebaseObject, gameSettingsFirebaseObject, nextState, nextStateTitle) => {
   playerSettingsFirebaseObject.once('value', snap => {
     let players = snap.val()
 
@@ -374,11 +369,17 @@ const checkWinCondition = (playerSettingsFirebaseObject, gameSettingsFirebaseObj
     }
   })
 
-  gameSettingsFirebaseObject.child('gameState').once('value', snap=> {
+  // gameSettingsFirebaseObject.child('gameState').once('value', snap=> {
+  gameSettingsFirebaseObject.once('value', snap=> {
     let currentGameState = snap.val()
-    if(currentGameState != "game-ended" && currentGameState != "werewolves-win" && currentGameState != "villagers-win") {
-      gameSettings.set({
-        gameState: nextState
+    console.log('currentGameState.gameState', currentGameState.gameState)
+    console.log('currentGameState', currentGameState)
+    console.log('checking gameState value')
+    if(currentGameState.gameState != "game-ended" && currentGameState.gameState != "werewolves-win" && currentGameState.gameState != "villagers-win") {
+      console.log('changing game state')
+      gameSettingsFirebaseObject.set({
+        gameState: nextState,
+        stateTitle: nextStateTitle
       })
     }
   })
