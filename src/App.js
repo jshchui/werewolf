@@ -79,6 +79,7 @@ class App extends Component {
       })
     })
 
+    //PRESENT-THIS
     gameSettingsRef.on('value', snap => {
       const gameSettings = snap.val()
       this.setState({
@@ -201,9 +202,6 @@ class App extends Component {
   componentWillMount() {
     document.addEventListener("keydown", this.onKeyDown);
   }
-
-  componentDidMount() {
-  }// end of component did mount
 
   formShow = (form) => {
     let formStatus = document.getElementById(form);
@@ -375,31 +373,17 @@ class App extends Component {
     document.getElementById("player-list").classList.toggle("show");
   }
 
-  // <div className="VotingKillTest">
-  //   <button id="killSwitch" onClick={this.killSwitch}>KILL SWITCH</button>
-  //   <button onClick={this.assignRole}>Assign Role</button>
-  //   <button onClick={this.voteKillTestWithoutState}>KillTest without State</button>
-  //   <button onClick={this.setIsAliveFalse}>RecentlyDead to False</button>
-  //   <button onClick={this.checkWinCondition}>Check Win Condition</button>
-  //   <button onClick={this.voteKillTest}>Kill Test</button>
-  //   <button onClick={this.voteFormToggle}>Voting Form Toggle</button>
-  // </div>
-
    killSwitch = () => {
      firebase.database().ref().child('game-settings').child('gameState').set('game-ended');
    }
 
-
+   //PRESENT-THIS
   countDownTimer = () => {
     this.clearCountDownInterval()
     let endTime = typeof(this.state.endTime) != 'undefined' ? this.state.endTime : 0
 
     let countDownAmount = endTime - Date.now();
     let currentCount = Math.floor(countDownAmount / 1000);
-
-    // if (isNaN(currentCount)) {
-    //   debugger
-    // }
 
     this.setState({
       countDown: currentCount
@@ -440,9 +424,7 @@ class App extends Component {
   }
 
   forcePhaseChange = () => {
-    // if(this.state.alias.length === 10) {
-      firebase.database().ref().child('game-settings').child('gameState').set('skipToNextPhase');
-    // }
+    firebase.database().ref().child('game-settings').child('gameState').set('skipToNextPhase');
   }
 
   checkDeath = () => {
@@ -611,18 +593,6 @@ class App extends Component {
               {roleDisplay}
             </div>
           </div>
-
-          {/* <div id="werewolves-win">
-            <div id="werewolves-win-box">
-              <h2>The werewolves win!</h2>
-            </div>
-          </div>
-
-          <div id="villagers-win">
-            <div id="villagers-win-box">
-              <h2>The villagers-win</h2>
-            </div>
-          </div> */}
         </div>
 
         <div className="announcer" onClick={this.toggleNav}>

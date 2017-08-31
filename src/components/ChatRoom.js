@@ -60,7 +60,6 @@ class ChatRoom extends Component {
 
   // I need to get users in here
   submitMessage(event) {
-    // console.log('submitMessage: ' + this.state.message);
     if(this.state.message.length > 0) {
       const nextMessage = {
         id: this.state.messages.length,

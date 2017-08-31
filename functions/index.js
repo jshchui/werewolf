@@ -6,82 +6,6 @@ let nextGameState;
 let nextStateTitleGlobal;
 let interval;
 let werewolfTurn = false;
-// exports.startCycle = functions.database.ref('game-settings').onUpdate((event) => {
-//   let cycleLoop;
-//   // if game setting was returned TRUE, THEN RUN BELOW
-//   if (event.data.val().started) {
-//     // set up your game ONCE here
-    // const cycle = {
-    //   cycleStart: Date.now(),
-    //   cycleEnd: Date.now() + (3 * 1000),
-    //   cycle: 'night'
-    // };
-//
-//     // cycles through different states
-//     const cycleMap = {
-//       'night' : 'day',
-//       // 'deaths' : 'day',
-//       'day' : 'night'
-//     }
-//     // collect vote during night,
-//     // on death , count votes, set dead on presence, clear votes.
-//     // update cycle every 3 seconds
-//     return event.data.ref.parent.child('presence').database.ref('/').child('react').update(cycle).then(() => {
-//       cycleLoop = setInterval(() => {
-//         console.log(new Date());
-//         return event.data.ref.parent.child('game-settings').once('value').then((snap) => {
-//           if (snap.val().started) {
-//             event.data.ref.parent.child('presence').database.ref('/').child('react').once('value').then((newSnap) => {
-//               const currentCycle = newSnap.val().cycle;
-//               // UPDATE YOUR GAME EVERY CYCLE HERE
-//               const newCycle = {
-//                 cycleStart: Date.now(),
-//                 cycleEnd: Date.now() + (3 * 1000),
-//                 cycle: cycleMap[currentCycle]
-//               };
-//               updateCycle(newCycle);
-//             });
-//           } else {
-//             return clearInterval(cycleLoop);
-//           }
-//         });
-//       }, 3 * 1000);
-//
-//       function updateCycle(newCycle) {
-//         return event.data.ref.parent.child('presence').database.ref('/').child('react').update(newCycle);
-//       }
-//
-//       // cycle: 'night' ? 'day' : 'night'
-//       // isBlack ? {isHidden ? : 'foo' : 'bar '} : 'baz';
-//
-//       // var i = 0, times = 10;
-//       // function f() {
-//       //   console.log(Date.now())
-//       //     event.data.ref.parent.child('game-settings').once('value').then((snap) => {
-//       //       if (snap.val().started) {
-//       //         event.data.ref.parent.child('presence').database.ref('/').child('react').once('value').then((newSnap) => {
-//       //           const currentCycle = newSnap.val().cycle;
-//       //           const newCycle = {
-//       //             cylceStart: Date.now(),
-//       //             cycleEnd: Date.now() + (3 * 1000),
-//       //             cycle: 'night' ? 'day' : 'night'
-//       //           };
-//       //           updateCycle(newCycle);
-//       //         });
-//       //       }
-//       //     });
-//       //
-//       //
-//       //   i++ ;
-//       //   if(i < times) {
-//       //     setTimeout( f, 3000);
-//       //   }
-//       // }
-//       //
-//       // f();
-//     });
-//   }
-// });
 
 // checks if the presence is deleted then set game stetitng to false
 exports.endGame = functions.database.ref('presence').onDelete((event) => {
@@ -102,7 +26,6 @@ exports.startGame = functions.database.ref('presence').onUpdate((event) => {
     const allReady = Object.keys(snap.val()).map((playerID) => {
       return snap.val()[playerID].ready;
     }).indexOf(false) === -1;
-    // console.log(event.data.ref.parent.child('game-settings').gameState)
 
     event.data.ref.parent.child('game-settings').child('gameState').once('value', snap => {
       const gameState = snap.val();
@@ -112,11 +35,6 @@ exports.startGame = functions.database.ref('presence').onUpdate((event) => {
           gameState: "all-ready",
           stateTitle: "Game will begin shortly"
         });
-      // } else if (gameState == 'skipToNextPhase') {
-      //   clearInterval(interval)
-      //   return event.data.ref.parent.child('game-settings').set({
-      //     gameState: nextGameState
-      //   })
       } else {
         return null;
       }
@@ -132,81 +50,54 @@ exports.gameStateListener = functions.database.ref('game-settings').onUpdate((ev
   const playerSettingsFirebaseObject = event.data.ref.parent.child('presence')
 
   if(lastGameState != gameSettings.gameState) {
-    // if(gameSettings.gameState !== "game-ended" || "werewolves-win" || "villagers-win") {
-      switch(gameSettings.gameState) {
-        case "all-ready":
-          assignRole(playerSettingsFirebaseObject)
-          countDownInterval(gameSettingsFirebaseObject, 'Werewolf-Phase', 14, 'Werewolves Turn')
-          clearMessages(event.data.ref.parent.child('messages'))
-          break;
-        case "Werewolf-Phase":
-          setIsAliveFalse(playerSettingsFirebaseObject);
-          countDownInterval(gameSettingsFirebaseObject, 'Seer-Phase', 16, 'Seers Turn')
-          werewolfTurn = true;
-          break;
-        case "Seer-Phase":
-          countDownInterval(gameSettingsFirebaseObject, 'Night-Death-Phase', 16, 'Who Died?')
-          break;
-        case "Night-Death-Phase":
-          killMostVotedPlayer(playerSettingsFirebaseObject, gameSettingsFirebaseObject)
-          countDownInterval(gameSettingsFirebaseObject, 'Day-Phase', 12, 'Day Time')
-          break;
-        case "Day-Phase":
-          setIsAliveFalse(playerSettingsFirebaseObject);
-          werewolfTurn = false
-          countDownInterval(gameSettingsFirebaseObject, 'Lynch-Phase', 20, 'Lynching Phase')
-          break;
-        case "Lynch-Phase":
-          countDownInterval(gameSettingsFirebaseObject, 'Day-Death-Phase', 23, 'Who got lynched?')
-          break;
-        case "Day-Death-Phase":
-          killMostVotedPlayer(playerSettingsFirebaseObject)
-          countDownInterval(gameSettingsFirebaseObject, 'Check-Win', 12, 'Who got lynched?')
-          break;
-        case "Check-Win":
-          checkWinCondition(playerSettingsFirebaseObject, gameSettingsFirebaseObject, 'Werewolf-Phase', 'Werewolves Turn')
-          break;
-        case "skipToNextPhase":
-          skipPhase(gameSettingsFirebaseObject, nextGameState, nextStateTitleGlobal)
-          break;
-      }
-      lastGameState = gameSettings.gameState
-    // }
+    switch(gameSettings.gameState) {
+      case "all-ready":
+        assignRole(playerSettingsFirebaseObject)
+        countDownInterval(gameSettingsFirebaseObject, 'Werewolf-Phase', 14, 'Werewolves Turn')
+        clearMessages(event.data.ref.parent.child('messages'))
+        break;
+      case "Werewolf-Phase":
+        setIsAliveFalse(playerSettingsFirebaseObject);
+        countDownInterval(gameSettingsFirebaseObject, 'Seer-Phase', 16, 'Seers Turn')
+        werewolfTurn = true;
+        break;
+      case "Seer-Phase":
+        countDownInterval(gameSettingsFirebaseObject, 'Night-Death-Phase', 16, 'Who Died?')
+        break;
+      case "Night-Death-Phase":
+        killMostVotedPlayer(playerSettingsFirebaseObject, gameSettingsFirebaseObject)
+        countDownInterval(gameSettingsFirebaseObject, 'Day-Phase', 12, 'Day Time')
+        break;
+      case "Day-Phase":
+        setIsAliveFalse(playerSettingsFirebaseObject);
+        werewolfTurn = false
+        countDownInterval(gameSettingsFirebaseObject, 'Lynch-Phase', 60, 'Lynching Phase')
+        break;
+      case "Lynch-Phase":
+        countDownInterval(gameSettingsFirebaseObject, 'Day-Death-Phase', 23, 'Who got lynched?')
+        break;
+      case "Day-Death-Phase":
+        killMostVotedPlayer(playerSettingsFirebaseObject)
+        countDownInterval(gameSettingsFirebaseObject, 'Check-Win', 12, 'Who got lynched?')
+        break;
+      case "Check-Win":
+        checkWinCondition(playerSettingsFirebaseObject, gameSettingsFirebaseObject, 'Werewolf-Phase', 'Werewolves Turn')
+        break;
+      case "skipToNextPhase":
+        skipPhase(gameSettingsFirebaseObject, nextGameState, nextStateTitleGlobal)
+        break;
+    }
+    lastGameState = gameSettings.gameState
   }
 })
-
-// // Kill switch check EVERY SECOND
-// const countDownInterval = (gameSettings, nextState, countDownTime) => {
-//   let currentCountdown = countDownTime
-//   let currentGameState = null;
-//   const int = setInterval(() => {
-//     gameSettings.child('gameState').once('value', snap => {
-//       currentGameState = snap.val();
-//       if(currentCountdown > 0 && currentGameState != 'game-ended') {
-//         currentCountdown -= 1;
-//         gameSettings.child('currentCounter').set(currentCountdown)
-//       } else {
-//         if(currentGameState != "game-ended") {
-//           gameSettings.set({
-//             gameState: nextState,
-//             currentCounter: null
-//           })
-//         }
-//         return clearInterval(int)
-//       }
-//     })
-//   }, 1000)
-// }
 
 const skipPhase = (gameSettings, nextState, nextTitle) => {
   clearInterval(interval)
   nextGameState = nextState;
-  // gameSettings.child('gameState').once('value', snap => {
   gameSettings.set({
     gameState: nextGameState,
     stateTitle: nextTitle
   })
-  // })
 }
 
 const clearMessages = (messagesRef) => {
@@ -214,7 +105,7 @@ const clearMessages = (messagesRef) => {
 }
 
 // kill switch check at end of countdown
-//PRESENT
+//PRESENT-THIS
 const countDownInterval = (gameSettings, nextState, countDownTime, nextStateTitle) => {
   clearInterval(interval)
   let endTime = Date.now() + (countDownTime * 1000)
@@ -353,13 +244,11 @@ const checkWinCondition = (playerSettingsFirebaseObject, gameSettingsFirebaseObj
 
 
     if(werewolves >= villagers) {
-      // gameSettingsFirebaseObject.child('gameState').set('werewolves-win');
       gameSettingsFirebaseObject.set({
         gameState: 'werewolves-win',
         stateTitle: 'Werewolves Win!'
       })
     } else if (werewolves <= 0) {
-      // gameSettingsFirebaseObject.child('gameState').set('villagers-win');
       gameSettingsFirebaseObject.set({
         gameState: 'villagers-win',
         stateTitle: 'Villagers Win!'
@@ -369,7 +258,6 @@ const checkWinCondition = (playerSettingsFirebaseObject, gameSettingsFirebaseObj
     }
   })
 
-  // gameSettingsFirebaseObject.child('gameState').once('value', snap=> {
   gameSettingsFirebaseObject.once('value', snap=> {
     let currentGameState = snap.val()
     console.log('currentGameState.gameState', currentGameState.gameState)
