@@ -644,7 +644,7 @@ class App extends Component {
           </div>
         </div>
 
-        <ChatRoom player={this.state.alias} playerId={this.state.thisplayerID} />
+        <ChatRoom player={this.state.alias} playerId={this.state.thisplayerID} playerName={this.state.alias} />
       </div>
     );
   }

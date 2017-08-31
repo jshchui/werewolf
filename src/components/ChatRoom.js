@@ -70,7 +70,6 @@ class ChatRoom extends Component {
       }
 
       firebase.database().ref().child('messages/'+nextMessage.id).set(nextMessage)
-      console.log('i am submitting');
     }
   }
 
@@ -150,6 +149,8 @@ class ChatRoom extends Component {
       }
     })
 
+    const chatPlaceholder = `Write a message here ${this.props.playerName}`
+
     return (
       <div id="chatRoom-container">
         <div className="chatRoom-inner-container">
@@ -157,7 +158,7 @@ class ChatRoom extends Component {
             {currentMessage}
           </ol>
           <form className="message-form" id='form' onSubmit={this.onFormSubmit}>
-            <input className="message-input" onChange={this.updateMessage} type="text" placeholder="Message" />
+            <input className="message-input" onChange={this.updateMessage} type="text" placeholder={chatPlaceholder} />
             <button className="message-submit" onClick={this.submitMessage}>Submit</button>
           </form>
         </div>
